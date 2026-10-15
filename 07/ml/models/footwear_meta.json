@@ -1,0 +1,63 @@
+{
+  "category": "footwear",
+  "input_size": [
+    224,
+    224,
+    3
+  ],
+  "class_names": [
+    "fake",
+    "genuine"
+  ],
+  "preprocessing": "mobilenet_v2.preprocess_input",
+  "tf_version": "2.21.0",
+  "keras_version": "3.14.0",
+  "dataset_sources": "Roboflow",
+  "split_counts": {
+    "train": {
+      "fake": 7102,
+      "genuine": 8989
+    },
+    "val": {
+      "fake": 420,
+      "genuine": 521
+    },
+    "test": {
+      "fake": 194,
+      "genuine": 251
+    }
+  },
+  "test_metrics": {
+    "accuracy": 0.9056,
+    "roc_auc": 0.9708,
+    "macro_f1": 0.9033,
+    "weighted_f1": 0.9052,
+    "fake": {
+      "precision": 0.9176,
+      "recall": 0.8608,
+      "f1": 0.8883,
+      "support": 194
+    },
+    "genuine": {
+      "precision": 0.8973,
+      "recall": 0.9402,
+      "f1": 0.9183,
+      "support": 251
+    },
+    "test_samples": 445,
+    "confusion_matrix": [
+      [
+        167,
+        27
+      ],
+      [
+        15,
+        236
+      ]
+    ]
+  },
+  "decision_thresholds": {
+    "fake_below": 0.35,
+    "genuine_above": 0.65
+  }
+}

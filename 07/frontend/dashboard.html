@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DeepGuard User</title>
+    <link rel="stylesheet" href="css/style.css?v=1785129584">
+    <style>
+        .user-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .user-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(20px);
+        }
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        
+        .main-content {
+            padding: 8rem 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .stat-icon.purple { background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(124,58,237,0.05)); color: var(--primary); }
+        .stat-icon.blue { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(59,130,246,0.05)); color: var(--accent); }
+        .stat-icon.green { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05)); color: var(--success); }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border: 1px dashed var(--border-color);
+            border-radius: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- User Navigation -->
+    <nav class="user-nav">
+        <div class="user-nav-left">
+            <div class="dropdown">
+                <div class="nav-brand" style="cursor: pointer;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    DeepGuard
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px; color:var(--text-secondary)"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="dropdown-menu">
+                    <a href="dashboard.html" class="dropdown-item">📊 Dashboard</a>
+                    <a href="detect.html" class="dropdown-item">🔍 New Detection</a>
+                    <a href="history.html" class="dropdown-item">📜 My History</a>
+                    <a href="chat.html" class="dropdown-item">🤖 AI Assistant</a>
+                    <a href="learn-more.html" class="dropdown-item">💡 Learn More</a>
+                    <a href="about.html" class="dropdown-item">ℹ️ About Us</a>
+                </div>
+            </div>
+        </div>
+        <div class="user-nav-right" style="display: flex; gap: 1rem; align-items: center;">
+            <span class="auth-name" style="font-weight: 500; color: var(--text-primary);">User</span>
+            <button onclick="logout()" class="btn btn-ghost" style="padding: 0.5rem 1rem;">Log out</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="animate" style="margin-bottom: 3rem;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back, <span class="auth-name text-gradient">User</span></h1>
+            <p class="text-secondary">Here is the overview of your recent authentication activity.</p>
+        </header>
+
+        <div class="stats-grid">
+            <div class="glass-card stat-card animate" data-delay="100">
+                <div class="stat-icon purple"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                <div>
+                    <div class="stat-value" id="totalScans">0</div>
+                    <div class="stat-label">Total Scans</div>
+                </div>
+            </div>
+            <div class="glass-card stat-card animate" data-delay="200">
+                <div class="stat-icon green"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                <div>
+                    <div class="stat-value" id="genuineCount">0</div>
+                    <div class="stat-label">Genuine Products</div>
+                </div>
+            </div>
+            <div class="glass-card stat-card animate" data-delay="300">
+                <div class="stat-icon blue"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+                <div>
+                    <div class="stat-value" id="fakeCount">0</div>
+                    <div class="stat-label">Counterfeits Detected</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="animate" data-delay="400" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem;">Recent Detections</h2>
+            <a href="history.html" class="btn btn-ghost" style="padding: 0.5rem 1rem;">View All</a>
+        </div>
+        
+        <div class="glass-card animate" data-delay="500" style="padding: 0;">
+            <div id="recentScansTable">
+                <div class="empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color:var(--text-secondary); margin-bottom:1rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    <h3 style="margin-bottom: 0.5rem;">No scans yet</h3>
+                    <p class="text-secondary" style="margin-bottom: 1.5rem;">Upload your first product image to verify its authenticity.</p>
+                    <a href="detect.html" class="btn btn-primary">Start New Detection</a>
+                </div>
+            </div>
+        </div>
+        <script>
+        const API_BASE = (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+            async function fetchDashboardData() {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                try {
+                    const response = await axios.get('${API_BASE}/detection/history', {
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        }
+                    });
+
+                    const history = response.data || [];
+                    const total = history.length;
+                    const genuine = history.filter(item => (item.result || '').toLowerCase() === 'genuine' || (item.result || '').toLowerCase() === 'authentic').length;
+                    const fake = history.filter(item => (item.result || '').toLowerCase() === 'fake' || (item.result || '').toLowerCase() === 'counterfeit').length;
+
+                    document.getElementById('totalScans').textContent = total;
+                    document.getElementById('genuineCount').textContent = genuine;
+                    document.getElementById('fakeCount').textContent = fake;
+
+                    const tableContainer = document.getElementById('recentScansTable');
+                    if (total === 0) {
+                        tableContainer.innerHTML = `
+                            <div class="empty-state">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="color:var(--text-secondary); margin-bottom:1rem;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                <h3 style="margin-bottom: 0.5rem;">No scans yet</h3>
+                                <p class="text-secondary" style="margin-bottom: 1.5rem;">Upload your first product image to verify its authenticity.</p>
+                                <a href="detect.html" class="btn btn-primary">Start New Detection</a>
+                            </div>`;
+                    } else {
+                        const recentItems = history.slice(0, 5);
+                        let tableHTML = `
+                            <div class="table-responsive">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color);">
+                                        <tr>
+                                            <th style="padding: 1.25rem;">Date</th>
+                                            <th style="padding: 1.25rem;">Category</th>
+                                            <th style="padding: 1.25rem;">Confidence</th>
+                                            <th style="padding: 1.25rem;">Result</th>
+                                            <th style="padding: 1.25rem; text-align: right;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>`;
+                        
+                        recentItems.forEach(item => {
+                            const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent';
+                            const isGen = (item.result || '').toLowerCase() === 'genuine' || (item.result || '').toLowerCase() === 'authentic';
+                            const statusBadge = isGen 
+                                ? `<span style="padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3);">Genuine</span>`
+                                : `<span style="padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3);">Fake</span>`;
+                            const confScore = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence.toFixed(1) : (item.confidence * 100).toFixed(1)) : item.confidence;
+
+                            tableHTML += `
+                                <tr style="border-bottom: 1px solid var(--border-color);">
+                                    <td style="padding: 1.25rem;">${dateStr}</td>
+                                    <td style="padding: 1.25rem; text-transform: capitalize;">${item.category || 'Footwear'}</td>
+                                    <td style="padding: 1.25rem; font-weight: 600;">${confScore}%</td>
+                                    <td style="padding: 1.25rem;">${statusBadge}</td>
+                                    <td style="padding: 1.25rem; text-align: right;">
+                                        <a href="report-detail.html?id=${item.id}" class="btn btn-ghost" style="padding: 0.3rem 0.8rem; font-size: 0.85rem;">View Report</a>
+                                    </td>
+                                </tr>`;
+                        });
+
+                        tableHTML += `</tbody></table></div>`;
+                        tableContainer.innerHTML = tableHTML;
+                    }
+                } catch (error) {
+                    console.error("Error fetching dashboard history:", error);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                checkAuth('user');
+                fetchDashboardData();
+            });
+        </script>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/animations.js?v=1785129584"></script>
+    <script src="js/auth.js?v=1785129584"></script>
+</body>
+</html>

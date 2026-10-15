@@ -1,0 +1,54 @@
+{
+  "category": "footwear",
+  "counts": {
+    "train": {
+      "fake": 7102,
+      "genuine": 8989
+    },
+    "val": {
+      "fake": 420,
+      "genuine": 521
+    },
+    "test": {
+      "fake": 194,
+      "genuine": 251
+    }
+  },
+  "corrupt_images_found": 0,
+  "leakage_pairs_found": 0,
+  "leakage_by_pair": {
+    "train-val": 0,
+    "train-test": 0,
+    "val-test": 0
+  },
+  "leakage_details": [],
+  "style_metrics": {
+    "mean_width": {
+      "genuine": 640.0,
+      "fake": 640.0,
+      "diff_percent": 0.0
+    },
+    "mean_height": {
+      "genuine": 640.0,
+      "fake": 640.0,
+      "diff_percent": 0.0
+    },
+    "mean_bytes": {
+      "genuine": 47526.58,
+      "fake": 52860.97,
+      "diff_percent": 10.09
+    },
+    "mean_brightness": {
+      "genuine": 126.52,
+      "fake": 127.81,
+      "diff_percent": 1.01
+    },
+    "jpeg_ratio": {
+      "genuine": 1.0,
+      "fake": 1.0,
+      "diff_percent": 0.0
+    }
+  },
+  "style_warnings": [],
+  "passed": true
+}

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Login - DeepGuard Security</title>
+    <link rel="stylesheet" href="../css/style.css?v=1785129584">
+    <style>
+        body {
+            background: #1a0000;
+            color: #f4f4f5;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .super-login-wrapper {
+            width: 100%;
+            max-width: 440px;
+            padding: 2rem;
+        }
+        .super-login-card {
+            background: #2b0404;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(153, 27, 27, 0.5);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .super-login-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .warning-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            margin-bottom: 1.5rem;
+        }
+        .form-group-super {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .form-label-super {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #fca5a5;
+            margin-bottom: 0.5rem;
+        }
+        .form-input-super {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            background: #0f0202;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+        .form-input-super:focus {
+            border-color: #ef4444;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25);
+        }
+        .btn-super-login {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #ef4444, #991b1b);
+            color: #fff;
+            font-weight: 800;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+        .btn-super-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="super-login-wrapper">
+        <div class="super-login-card">
+            <div class="warning-badge">
+                ⚠️ AUTHORIZED PERSONNEL ONLY
+            </div>
+            
+            <h1 style="font-size: 2rem; font-weight: 900; margin: 0 0 0.5rem; color: #fff;">
+                👑 Super Admin Access
+            </h1>
+            <p style="color: #fca5a5; font-size: 0.9rem; margin-bottom: 2rem; opacity: 0.8;">
+                Root Access Control Panel &bull; DeepGuard Security
+            </p>
+
+            <form id="superLoginForm">
+                <div class="form-group-super">
+                    <label class="form-label-super">Super Admin Email</label>
+                    <input type="email" id="email" class="form-input-super" placeholder="superadmin@deepguard.com" required value="superadmin@deepguard.com">
+                </div>
+
+                <div class="form-group-super" style="margin-bottom: 2rem;">
+                    <label class="form-label-super">Root Password</label>
+                    <input type="password" id="password" class="form-input-super" placeholder="••••••••••••" required value="DeepGuard@2025">
+                </div>
+
+                <button type="submit" id="loginBtn" class="btn-super-login">
+                    Authenticate Root Access
+                </button>
+            </form>
+
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(239, 68, 68, 0.2);">
+                <a href="../login.html" style="color: #fca5a5; text-decoration: none; font-size: 0.85rem; opacity: 0.7;">&larr; Standard User & Admin Login</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const API_BASE = (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        ) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+        document.getElementById('superLoginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+
+            btn.textContent = 'Authenticating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/superadmin-login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('superadmin_token', data.access_token);
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('role', 'superadmin');
+                    localStorage.setItem('user_name', data.name || 'Super Administrator');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Root Access Granted',
+                        text: 'Welcome Super Administrator.',
+                        background: '#2b0404',
+                        color: '#fff',
+                        confirmButtonColor: '#ef4444',
+                        timer: 1000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = 'dashboard.html';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Access Denied',
+                        text: data.detail || 'Invalid super admin credentials.',
+                        background: '#2b0404',
+                        color: '#fff',
+                        confirmButtonColor: '#ef4444'
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Failed to connect to backend server.',
+                    background: '#2b0404',
+                    color: '#fff',
+                    confirmButtonColor: '#ef4444'
+                });
+            } finally {
+                btn.textContent = 'Authenticate Root Access';
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

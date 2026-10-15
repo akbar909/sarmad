@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - DeepGuard</title>
+    <link rel="stylesheet" href="css/style.css?v=1785129584">
+    <style>
+        .page-hero {
+            padding: 10rem 2rem 5rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .page-hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1.5rem;
+        }
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        .team-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .team-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        .team-card .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fff;
+            margin: 0 auto 1.5rem;
+            font-weight: 700;
+        }
+        .team-card .roll {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 3rem auto 0;
+            padding-left: 2rem;
+            border-left: 2px solid var(--primary);
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2.5rem;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.55rem;
+            top: 0.2rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 3px solid var(--bg-primary);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            DeepGuard
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="index.html#features" class="nav-link">Features</a>
+            <a href="learn-more.html" class="nav-link">Learn More</a>
+            <a href="about.html" class="nav-link active">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <a href="login.html" class="btn btn-ghost">Log in</a>
+            <a href="register.html" class="btn btn-primary">Sign up</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="page-hero">
+        <div class="animate" data-delay="100">
+            <span class="badge">Engineering Excellence</span>
+        </div>
+        <h1 class="animate" data-delay="200">About <span class="text-gradient">DeepGuard</span></h1>
+        <p style="font-size: 1.2rem; color: var(--text-secondary);" class="animate" data-delay="300">
+            Building the next generation of artificial intelligence tools for product verification and brand protection.
+        </p>
+    </section>
+
+    <!-- Mission Statement -->
+    <section class="container" style="margin-bottom: 6rem;">
+        <div class="glass-card animate" style="padding: 3rem; text-align: center; max-width: 900px; margin: 0 auto;">
+            <h2 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--primary);">Our Mission</h2>
+            <p style="font-size: 1.15rem; color: var(--text-secondary); line-height: 1.8;">
+                DeepGuard was conceived to democratize product authenticity verification. By putting advanced computer vision and deep learning models into the hands of everyday consumers and businesses, we aim to eliminate counterfeit fraud across global supply chains.
+            </p>
+        </div>
+    </section>
+
+    <!-- Academic FYP Details & University -->
+    <section class="container" style="margin-bottom: 6rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem;">
+            <div class="glass-card animate" data-delay="100">
+                <span class="badge">ACADEMIC CONTEXT</span>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Final Year Project (FYP)</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    This project is submitted in partial fulfillment of the requirements for the degree of <strong>Bachelor of Engineering (BE) in Computer Systems Engineering</strong>.
+                </p>
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">SUPERVISOR</div>
+                    <div style="font-weight: 700; color: var(--text-primary); font-size: 1.1rem; margin-top: 0.25rem;">Dr. Irfan Bacho</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem;">Department of Computer Systems Engineering</div>
+                </div>
+            </div>
+
+            <div class="glass-card animate" data-delay="200">
+                <span class="badge">INSTITUTION</span>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">MUET Jamshoro</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Developed at <strong>Mehran University of Engineering and Technology (MUET)</strong>, Jamshoro, Sindh, Pakistan - one of Pakistan's premier engineering institutions.
+                </p>
+                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px;">
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">DEPARTMENT</div>
+                    <div style="font-weight: 700; color: var(--text-primary); font-size: 1.1rem; margin-top: 0.25rem;">Computer Systems Engineering</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="container" style="margin-bottom: 6rem;">
+        <h2 style="font-size: 2.2rem; text-align: center; margin-bottom: 1rem;" class="animate">Project Team Members</h2>
+        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 3rem;" class="animate">BE Computer Systems Engineering (Batch 22CS)</p>
+
+        <div class="team-grid">
+            <div class="team-card animate" data-delay="100">
+                <div class="avatar">SM</div>
+                <h3>Sarmad Mangi</h3>
+                <div class="roll">Roll No: 22CS080</div>
+                <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.5rem;">Full Stack & Neural Network Architecture</p>
+            </div>
+            <div class="team-card animate" data-delay="200">
+                <div class="avatar">FT</div>
+                <h3>Farhan Ali Tunio</h3>
+                <div class="roll">Roll No: 22CS010</div>
+                <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.5rem;">Computer Vision & Model Optimization</p>
+            </div>
+            <div class="team-card animate" data-delay="300">
+                <div class="avatar">MS</div>
+                <h3>Mohammad Ubaid Shaikh</h3>
+                <div class="roll">Roll No: 22CS111</div>
+                <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 0.5rem;">FastAPI Backend & Infrastructure</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="container" style="margin-bottom: 6rem;">
+        <h2 style="font-size: 2.2rem; text-align: center; margin-bottom: 3rem;" class="animate">Project Timeline</h2>
+        <div class="timeline animate">
+            <div class="timeline-item">
+                <h4 style="color: var(--primary);">December 2025</h4>
+                <h3 style="font-size: 1.2rem;">Project Proposal & Literature Review</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Problem identification, dataset curation research, and initial project feasibility report under Dr. Irfan Bacho.</p>
+            </div>
+            <div class="timeline-item">
+                <h4 style="color: var(--accent);">March 2026</h4>
+                <h3 style="font-size: 1.2rem;">Dataset Collection & Model Training</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Curating genuine/counterfeit images across 4 categories and training custom CNN baseline models.</p>
+            </div>
+            <div class="timeline-item">
+                <h4 style="color: var(--success);">June 2026</h4>
+                <h3 style="font-size: 1.2rem;">Claude AI Vision Integration & Backend</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">FastAPI backend implementation, multimodal explanation engine development, and database integration.</p>
+            </div>
+            <div class="timeline-item">
+                <h4 style="color: var(--primary);">October 2026</h4>
+                <h3 style="font-size: 1.2rem;">Final Evaluation & Defense</h3>
+                <p style="color: var(--text-secondary); margin-top: 0.5rem;">Comprehensive system UI redesign, model testing, performance metrics audit, and final FYP defense.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="background: #000; border-top: 1px solid var(--border-color); padding: 3rem 2rem; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+        &copy; 2025-26 DeepGuard. All rights reserved. | BE Computer Systems Engineering (MUET Jamshoro)
+    </footer>
+
+    <script src="js/animations.js?v=1785129584"></script>
+</body>
+</html>

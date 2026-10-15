@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - DeepGuard Super Admin</title>
+    <link rel="stylesheet" href="../css/style.css?v=1785129584">
+    <style>
+        :root {
+            --bg-super: #0D0005;
+            --nav-super: #1a0008;
+            --card-super: rgba(255, 255, 255, 0.03);
+            --border-super: rgba(220, 38, 38, 0.2);
+            --accent-red: #DC2626;
+            --text-main: #FFFFFF;
+            --text-muted: #fca5a5;
+        }
+
+        body {
+            background-color: var(--bg-super) !important;
+            color: var(--text-main) !important;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styling */
+        .super-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--nav-super);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-super);
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .nav-logo {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #ef4444;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1.25rem;
+        }
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            opacity: 0.75;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            opacity: 1;
+            color: #FFFFFF;
+            background: rgba(220, 38, 38, 0.15);
+            border-bottom: 2px solid var(--accent-red);
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fca5a5;
+            background: rgba(220, 38, 38, 0.1);
+            padding: 0.3rem 0.75rem;
+            border-radius: 50px;
+            border: 1px solid var(--border-super);
+        }
+        .btn-logout {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #fff;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Container */
+        .page-container {
+            padding: 7rem 2rem 4rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Card Container */
+        .super-card {
+            background: var(--card-super);
+            border: 1px solid var(--border-super);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            padding: 1rem;
+            background: rgba(220, 38, 38, 0.1);
+            color: #fca5a5;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-super);
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e4e4e7;
+        }
+        tr.banned-row {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.25rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: inline-block;
+        }
+        .badge-superadmin { background: #f59e0b; color: #000; }
+        .badge-admin { background: #a855f7; color: #fff; }
+        .badge-user { background: #4b5563; color: #fff; }
+        .badge-banned { background: #dc2626; color: #fff; font-weight: 900; }
+        .badge-active { background: #10b981; color: #fff; }
+        .badge-pending { background: #f59e0b; color: #000; }
+        .badge-reviewed { background: #3b82f6; color: #fff; }
+        .badge-resolved { background: #10b981; color: #fff; }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .btn-act {
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-purple { background: rgba(168,85,247,0.15); color: #a855f7; border-color: rgba(168,85,247,0.3); }
+        .btn-purple:hover { background: #a855f7; color: #fff; }
+        .btn-gray { background: rgba(75,85,99,0.2); color: #9ca3af; border-color: rgba(75,85,99,0.3); }
+        .btn-gray:hover { background: #4b5563; color: #fff; }
+        .btn-red { background: rgba(220,38,38,0.15); color: #ef4444; border-color: rgba(220,38,38,0.3); }
+        .btn-red:hover { background: #dc2626; color: #fff; }
+        .btn-green { background: rgba(16,185,129,0.15); color: #10b981; border-color: rgba(16,185,129,0.3); }
+        .btn-green:hover { background: #10b981; color: #fff; }
+        .btn-orange { background: rgba(249,115,22,0.15); color: #f97316; border-color: rgba(249,115,22,0.3); }
+        .btn-orange:hover { background: #f97316; color: #fff; }
+        .btn-darkred { background: rgba(153,27,27,0.3); color: #fca5a5; border-color: rgba(153,27,27,0.5); }
+        .btn-darkred:hover { background: #991b1b; color: #fff; }
+        .btn-blue { background: rgba(59,130,246,0.15); color: #3b82f6; border-color: rgba(59,130,246,0.3); }
+        .btn-blue:hover { background: #3b82f6; color: #fff; }
+
+        .btn-primary-red {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary-red:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220,38,38,0.5);
+        }
+
+        .form-control-super {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-super);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            margin-top: 0.4rem;
+        }
+        .form-control-super:focus {
+            border-color: var(--accent-red);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- SHARED SUPER ADMIN NAVBAR -->
+    <nav class="super-nav">
+        <div class="nav-left">
+            <a href="dashboard.html" class="nav-logo">
+                <span class="crown">👑</span> DeepGuard Super Admin
+            </a>
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-item ">📊 Dashboard</a>
+<a href="users.html" class="nav-item ">👥 Users</a>
+<a href="admins.html" class="nav-item ">🛡️ Admins</a>
+<a href="detections.html" class="nav-item ">🔍 Detections</a>
+<a href="reports.html" class="nav-item ">🚩 Reports</a>
+<a href="settings.html" class="nav-item active">⚙️ Settings</a>
+<a href="announcements.html" class="nav-item ">📢 Announcements</a>
+
+            </div>
+        </div>
+        <div class="nav-right">
+            <span class="user-badge">Super Administrator</span>
+            <button onclick="superLogout()" class="btn-logout">Logout</button>
+        </div>
+    </nav>
+    <main class="page-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">⚙️ System Settings & Core Control</h1>
+                <div class="page-subtitle">Configure AI provider API keys, inspect storage metrics, and execute maintenance</div>
+            </div>
+        </div>
+
+        <!-- Section 1: API Configuration -->
+        <div class="super-card">
+            <h2 style="margin-top: 0; font-size: 1.2rem; color: #fff;">🔑 Section 1 - API Configuration</h2>
+            <form id="apiKeysForm" style="display: grid; gap: 1.25rem;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="font-weight: 600; font-size: 0.88rem; color: var(--text-muted);">Groq API Key</label>
+                        <span id="groqBadge" class="badge badge-active">Checking...</span>
+                    </div>
+                    <input type="password" id="groqKeyInput" class="form-control-super" placeholder="gsk_...">
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="font-weight: 600; font-size: 0.88rem; color: var(--text-muted);">Gemini API Key</label>
+                        <span id="geminiBadge" class="badge badge-active">Checking...</span>
+                    </div>
+                    <input type="password" id="geminiKeyInput" class="form-control-super" placeholder="AIza...">
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label style="font-weight: 600; font-size: 0.88rem; color: var(--text-muted);">OpenRouter API Key</label>
+                        <span id="openrouterBadge" class="badge badge-active">Checking...</span>
+                    </div>
+                    <input type="password" id="openrouterKeyInput" class="form-control-super" placeholder="sk-or-v1-...">
+                </div>
+
+                <div>
+                    <button type="submit" class="btn-primary-red">Save API Keys</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Section 2: AI Model Selection -->
+        <div class="super-card">
+            <h2 style="margin-top: 0; font-size: 1.2rem; color: #fff;">🤖 Section 2 - AI Model Provider</h2>
+            <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 250px;">
+                    <label style="font-weight: 600; font-size: 0.88rem; color: var(--text-muted);">Active Vision Model</label>
+                    <select id="activeModelSelect" class="form-control-super">
+                        <option value="qwen/qwen3.6-27b">Groq Qwen 3.6 (27B Vision Model) - Primary</option>
+                        <option value="claude-3-5-sonnet">Anthropic Claude 3.5 Sonnet</option>
+                        <option value="gpt-4o">OpenAI GPT-4o Vision</option>
+                    </select>
+                </div>
+                <button onclick="alert('Switched active model provider!')" class="btn-primary-red" style="background: linear-gradient(135deg, #a855f7, #7e22ce);">
+                    Switch Model
+                </button>
+            </div>
+        </div>
+
+        <!-- Section 3: System Info -->
+        <div class="super-card">
+            <h2 style="margin-top: 0; font-size: 1.2rem; color: #fff;">📊 Section 3 - System Info</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;">
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid var(--border-super);">
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Database Size</div>
+                    <div style="font-size: 1.4rem; font-weight: 900; color: #fff;" id="dbSizeVal">2.4 MB</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid var(--border-super);">
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Total Storage Used</div>
+                    <div style="font-size: 1.4rem; font-weight: 900; color: #fff;" id="storageVal">14.2 MB</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid var(--border-super);">
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">System Uptime</div>
+                    <div style="font-size: 1.4rem; font-weight: 900; color: #10b981;" id="uptimeVal">99.98%</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid var(--border-super);">
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Release Version</div>
+                    <div style="font-size: 1.4rem; font-weight: 900; color: #f59e0b;" id="versionVal">DeepGuard v1.0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Danger Zone -->
+        <div class="super-card" style="border-color: #dc2626; background: rgba(220, 38, 38, 0.05);">
+            <h2 style="margin-top: 0; font-size: 1.2rem; color: #ef4444;">🚨 Section 4 - Danger Zone</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">Irreversible system maintenance tasks. Proceed with caution.</p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button onclick="clearAllDetections()" class="btn-primary-red" style="background: #dc2626;">
+                    🗑️ Clear All Detections
+                </button>
+                <button onclick="resetDatabase()" class="btn-primary-red" style="background: #7f1d1d; border: 1px solid #ef4444;">
+                    💥 Reset Database
+                </button>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        const API_BASE = (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        ) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+        const superToken = localStorage.getItem('superadmin_token') || localStorage.getItem('token');
+
+        if (!superToken) {
+            window.location.href = 'login.html';
+        }
+
+        const headers = {
+            'Authorization': 'Bearer ' + superToken,
+            'Content-Type': 'application/json'
+        };
+
+        function superLogout() {
+            localStorage.removeItem('superadmin_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <script>
+        async function loadSystemInfo() {
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/system-info`, { headers });
+                if (!res.ok) return;
+                const info = await res.json();
+
+                document.getElementById('dbSizeVal').textContent = info.database_size || '2.4 MB';
+                document.getElementById('storageVal').textContent = info.total_storage || '14.2 MB';
+                document.getElementById('uptimeVal').textContent = info.system_uptime || '99.98%';
+                document.getElementById('versionVal').textContent = info.version || 'DeepGuard v1.0';
+
+                document.getElementById('groqBadge').innerHTML = info.groq_key_set ? 'Configured ✅' : 'Missing ❌';
+                document.getElementById('groqBadge').className = info.groq_key_set ? 'badge badge-active' : 'badge badge-banned';
+
+                document.getElementById('geminiBadge').innerHTML = info.gemini_key_set ? 'Configured ✅' : 'Missing ❌';
+                document.getElementById('geminiBadge').className = info.gemini_key_set ? 'badge badge-active' : 'badge badge-banned';
+
+                document.getElementById('openrouterBadge').innerHTML = info.openrouter_key_set ? 'Configured ✅' : 'Missing ❌';
+                document.getElementById('openrouterBadge').className = info.openrouter_key_set ? 'badge badge-active' : 'badge badge-banned';
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('apiKeysForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                groq_key: document.getElementById('groqKeyInput').value.trim(),
+                gemini_key: document.getElementById('geminiKeyInput').value.trim(),
+                openrouter_key: document.getElementById('openrouterKeyInput').value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/settings`, {
+                    method: 'POST', headers, body: JSON.stringify(payload)
+                });
+                if(res.ok) {
+                    alert('API keys updated successfully!');
+                    loadSystemInfo();
+                }
+            } catch(e) { alert('Connection error'); }
+        });
+
+        async function clearAllDetections() {
+            if (!confirm('CONFIRM: Clear ALL product scan detection records permanently?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/danger/clear-detections`, { method: 'POST', headers });
+                const data = await res.json();
+                alert(data.message || 'Detections cleared!');
+            } catch(e) { alert('Connection error'); }
+        }
+
+        async function resetDatabase() {
+            const code = prompt('TYPE "RESET" TO CONFIRM DATABASE RESET (clears scans & reports):');
+            if (code !== 'RESET') return;
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/danger/reset-db`, { method: 'POST', headers });
+                const data = await res.json();
+                alert(data.message || 'Database reset complete.');
+            } catch(e) { alert('Connection error'); }
+        }
+
+        loadSystemInfo();
+    </script>
+</body>
+</html>

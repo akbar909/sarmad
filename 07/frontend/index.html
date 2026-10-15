@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGuard - Stop Buying Fake Products</title>
+    <link rel="stylesheet" href="css/style.css?v=1785129584">
+    <style>
+        /* Specific Landing Page Styles */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+        }
+        
+        .hero-heading {
+            font-size: clamp(3rem, 6vw, 5rem);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtext {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 2.5rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .stat-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* NEW HERO MOCKUP UI */
+        .hero-mockup {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(124, 58, 237, 0.25);
+            text-align: left;
+        }
+        .mockup-header {
+            background: var(--bg-card);
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .mockup-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .mockup-dot.r { background: #EF4444; }
+        .mockup-dot.y { background: #F59E0B; }
+        .mockup-dot.g { background: #10B981; }
+        
+        .mockup-body {
+            padding: 2rem;
+            background: var(--bg-primary);
+        }
+        .mockup-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .mockup-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .mockup-stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .mockup-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .mockup-table th, .mockup-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .mockup-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .mockup-badge.genuine { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+        .mockup-badge.fake { background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+
+        /* Features Section */
+        .section {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .feature-icon {
+            width: 48px; height: 48px;
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* NEW HOW IT WORKS (3-Column layout) */
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3rem;
+        }
+        .step-card {
+            text-align: center;
+            padding: 2rem;
+        }
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+        @media (max-width: 900px) {
+            .steps-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Categories */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .cat-card { text-align: center; padding: 3rem 2rem; }
+        .cat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Testimonials Marquee */
+        .marquee-wrapper {
+            overflow: hidden;
+            width: 100vw;
+            position: relative;
+            left: 50%; right: 50%;
+            margin-left: -50vw; margin-right: -50vw;
+            padding: 2rem 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .marquee {
+            display: flex;
+            width: max-content;
+            animation: scroll 40s linear infinite;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+        .marquee:hover { animation-play-state: paused; }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .testimonial-card {
+            width: 350px;
+            padding: 1.5rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(59,130,246,0.1));
+            border-radius: 24px;
+            padding: 6rem 2rem;
+            text-align: center;
+            margin: 6rem auto;
+            max-width: 1000px;
+            border: 1px solid rgba(124,58,237,0.2);
+        }
+
+        /* Footer */
+        .footer {
+            background: #000;
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 2rem 2rem;
+        }
+        .footer-grid {
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 4rem; margin-bottom: 4rem;
+        }
+        .footer-bottom {
+            max-width: 1200px; margin: 0 auto; text-align: center;
+            padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-secondary); font-size: 0.9rem;
+        }
+        .footer-title { color: #fff; font-weight: 600; margin-bottom: 1.5rem; }
+        .footer-links li { list-style: none; margin-bottom: 0.75rem; }
+        .footer-links a { color: var(--text-secondary); }
+        .footer-links a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <!-- Global Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            DeepGuard
+        </div>
+        <div class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#how-it-works" class="nav-link">How it Works</a>
+            <a href="learn-more.html" class="nav-link">Learn More</a>
+            <a href="about.html" class="nav-link">About Us</a>
+        </div>
+        <div class="nav-actions">
+            <a href="login.html" class="btn btn-ghost">Log in</a>
+            <a href="register.html" class="btn btn-primary">Sign up</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="animate" data-delay="100">
+            <span class="badge">✨ AI-Powered Product Authentication</span>
+        </div>
+        <h1 class="hero-heading animate" data-delay="200">
+            Stop Buying <br>
+            <span class="text-gradient">Fake Products.</span>
+        </h1>
+        <p class="hero-subtext animate" data-delay="300">
+            Verify the authenticity of your branded items instantly using our world-class CNN models and computer vision. Protect yourself from counterfeits.
+        </p>
+        <div class="hero-buttons animate" data-delay="400">
+            <a href="login.html" class="btn btn-primary">Start Free Detection &rarr;</a>
+            <a href="#demo" class="btn btn-ghost">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Watch Demo
+            </a>
+        </div>
+        <div class="hero-stats animate" data-delay="500">
+            <div class="stat-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--primary)"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                500+ Products Tested
+            </div>
+            <div class="stat-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--success)"><path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path></svg>
+                98.5% Accuracy
+            </div>
+            <div class="stat-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent)"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                4 Categories
+            </div>
+        </div>
+
+        <!-- NEW Realistic Dashboard Mockup -->
+        <div class="hero-mockup animate" data-delay="600">
+            <div class="mockup-header">
+                <div class="mockup-dot r"></div>
+                <div class="mockup-dot y"></div>
+                <div class="mockup-dot g"></div>
+            </div>
+            <div class="mockup-body">
+                <div class="mockup-top">
+                    <h3 style="color: var(--text-primary);">Recent Detections</h3>
+                    <div class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.8rem;">+ New Scan</div>
+                </div>
+                
+                <div class="mockup-stats">
+                    <div class="mockup-stat-card">
+                        <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">Total Scans</div>
+                        <div style="color: var(--text-primary); font-size: 1.5rem; font-weight: 700;">1,284</div>
+                    </div>
+                    <div class="mockup-stat-card">
+                        <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">Genuine</div>
+                        <div style="color: var(--success); font-size: 1.5rem; font-weight: 700;">943</div>
+                    </div>
+                    <div class="mockup-stat-card">
+                        <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">Fake</div>
+                        <div style="color: var(--danger); font-size: 1.5rem; font-weight: 700;">341</div>
+                    </div>
+                    <div class="mockup-stat-card">
+                        <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.5rem;">Avg. Accuracy</div>
+                        <div style="color: var(--accent); font-size: 1.5rem; font-weight: 700;">99.2%</div>
+                    </div>
+                </div>
+                
+                <table class="mockup-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Product</th>
+                            <th style="text-align: left;">Category</th>
+                            <th style="text-align: left;">Date</th>
+                            <th style="text-align: right;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Nike Air Jordan 1</td>
+                            <td>Footwear</td>
+                            <td>Just now</td>
+                            <td style="text-align: right;"><span class="mockup-badge genuine">Genuine (98%)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Rolex Submariner</td>
+                            <td>Accessories</td>
+                            <td>2 mins ago</td>
+                            <td style="text-align: right;"><span class="mockup-badge fake">Fake (85%)</span></td>
+                        </tr>
+                        <tr>
+                            <td>Sony WH-1000XM4</td>
+                            <td>Electronics</td>
+                            <td>1 hour ago</td>
+                            <td style="text-align: right;"><span class="mockup-badge genuine">Genuine (99%)</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <div class="section-header animate">
+            <span class="badge" style="color: var(--primary); background: transparent;">FEATURES</span>
+            <h2>Everything you need</h2>
+        </div>
+        <div class="features-grid">
+            <div class="glass-card animate" data-delay="100">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                </div>
+                <h3>Advanced CNN</h3>
+                <p style="margin-top:0.5rem; color:var(--text-secondary)">Powered by cutting edge Convolutional Neural Networks trained on thousands of fake and genuine items.</p>
+            </div>
+            <div class="glass-card animate" data-delay="200">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg>
+                </div>
+                <h3>Detailed Reports</h3>
+                <p style="margin-top:0.5rem; color:var(--text-secondary)">Get an AI-generated explanation of exactly why a product was flagged as counterfeit.</p>
+            </div>
+            <div class="glass-card animate" data-delay="300">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <h3>Bank-grade Security</h3>
+                <p style="margin-top:0.5rem; color:var(--text-secondary)">Your uploads and history are encrypted and securely stored for your eyes only.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW How it Works (3-Column Layout) -->
+    <section id="how-it-works" class="section">
+        <div class="section-header animate">
+            <h2>How it works</h2>
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 1rem auto 0;">Three simple steps to verify any product using our AI engine.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card animate" data-delay="100">
+                <div class="step-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </div>
+                <h3 style="margin-bottom: 0.5rem;">1. Upload Image</h3>
+                <p style="color: var(--text-secondary);">Take a clear photo of the product texture, logo, or stitching and upload it securely.</p>
+            </div>
+            <div class="step-card animate" data-delay="200">
+                <div class="step-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 0 1 10 10c0 5.5-4.5 10-10 10S2 17.5 2 12 7.5 2 12 2z"></path><path d="M12 6v6l4 2"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+                <h3 style="margin-bottom: 0.5rem;">2. AI Analysis</h3>
+                <p style="color: var(--text-secondary);">Our CNN models analyze micro-patterns in milliseconds to detect inconsistencies.</p>
+            </div>
+            <div class="step-card animate" data-delay="300">
+                <div class="step-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <h3 style="margin-bottom: 0.5rem;">3. View Results</h3>
+                <p style="color: var(--text-secondary);">Get an instant authenticity score and a detailed AI explanation of the verdict.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="section">
+        <div class="section-header animate">
+            <h2>What We Detect</h2>
+        </div>
+        <div class="categories-grid">
+            <div class="glass-card cat-card animate" data-delay="100">
+                <div class="cat-icon">&#128095;</div>
+                <h3>Footwear</h3>
+            </div>
+            <div class="glass-card cat-card animate" data-delay="200">
+                <div class="cat-icon">&#128268;</div>
+                <h3>Electronics</h3>
+            </div>
+            <div class="glass-card cat-card animate" data-delay="300">
+                <div class="cat-icon">&#128138;</div>
+                <h3>Medicine</h3>
+            </div>
+            <div class="glass-card cat-card animate" data-delay="400">
+                <div class="cat-icon">&#10024;</div>
+                <h3>Cosmetics</h3>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Marquee -->
+    <section class="section" style="padding: 4rem 0;">
+        <div class="section-header animate" style="margin-bottom: 2rem;">
+            <h2>Trusted by Thousands</h2>
+        </div>
+        <div class="marquee-wrapper animate">
+            <div class="marquee">
+                <!-- Double the items for infinite scroll effect -->
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"DeepGuard saved me from buying a fake iPhone. The AI explanation was spot on!"</p>
+                    <div style="color:var(--primary); font-weight:600;">Ahmed Khan</div>
+                </div>
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"I use this every time I buy sneakers online. Incredibly fast and accurate."</p>
+                    <div style="color:var(--accent); font-weight:600;">Fatima Sheikh</div>
+                </div>
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"The medicine detection is a lifesaver. Everyone should have this app."</p>
+                    <div style="color:var(--success); font-weight:600;">Ali Raza</div>
+                </div>
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"Beautiful interface and works flawlessly for branded cosmetics."</p>
+                    <div style="color:#EC4899; font-weight:600;">Sara Malik</div>
+                </div>
+                <!-- Duplicate -->
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"DeepGuard saved me from buying a fake iPhone. The AI explanation was spot on!"</p>
+                    <div style="color:var(--primary); font-weight:600;">Ahmed Khan</div>
+                </div>
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"I use this every time I buy sneakers online. Incredibly fast and accurate."</p>
+                    <div style="color:var(--accent); font-weight:600;">Fatima Sheikh</div>
+                </div>
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"The medicine detection is a lifesaver. Everyone should have this app."</p>
+                    <div style="color:var(--success); font-weight:600;">Ali Raza</div>
+                </div>
+                <div class="testimonial-card">
+                    <p style="margin-bottom:1rem; color:var(--text-primary);">"Beautiful interface and works flawlessly for branded cosmetics."</p>
+                    <div style="color:#EC4899; font-weight:600;">Sara Malik</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <div class="cta-section animate">
+        <h2 style="font-size: 2.5rem; margin-bottom: 1rem; color: #fff;">Ready to detect fakes?</h2>
+        <p style="margin-bottom: 2rem; color: rgba(255,255,255,0.7);">Join thousands of users who trust DeepGuard for authentication.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="register.html" class="btn btn-primary">Create Free Account</a>
+            <a href="learn-more.html" class="btn btn-ghost" style="color:#fff; border-color:rgba(255,255,255,0.2);">Learn More</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid animate">
+            <div>
+                <div class="nav-brand" style="margin-bottom: 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    DeepGuard
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">World-class AI product authentication system built for the modern web.</p>
+            </div>
+            <div>
+                <div class="footer-title">Project By</div>
+                <ul class="footer-links">
+                    <li><a href="about.html">Sarmad Mangi</a></li>
+                    <li><a href="about.html">Farhan Ali Tunio</a></li>
+                    <li><a href="about.html">Mohammad Ubaid Shaikh</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-title">Supervisor</div>
+                <ul class="footer-links">
+                    <li><a href="#">Dr. Irfan Bacho</a></li>
+                    <li><a href="#">MUET Jamshoro</a></li>
+                </ul>
+            </div>
+            <div>
+                <div class="footer-title">Legal</div>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom animate">
+            &copy; 2025-26 DeepGuard. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="js/animations.js?v=1785129584"></script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - DeepGuard Super Admin</title>
+    <link rel="stylesheet" href="../css/style.css?v=1785129584">
+    <style>
+        :root {
+            --bg-super: #0D0005;
+            --nav-super: #1a0008;
+            --card-super: rgba(255, 255, 255, 0.03);
+            --border-super: rgba(220, 38, 38, 0.2);
+            --accent-red: #DC2626;
+            --text-main: #FFFFFF;
+            --text-muted: #fca5a5;
+        }
+
+        body {
+            background-color: var(--bg-super) !important;
+            color: var(--text-main) !important;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styling */
+        .super-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--nav-super);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-super);
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .nav-logo {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #ef4444;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1.25rem;
+        }
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            opacity: 0.75;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            opacity: 1;
+            color: #FFFFFF;
+            background: rgba(220, 38, 38, 0.15);
+            border-bottom: 2px solid var(--accent-red);
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fca5a5;
+            background: rgba(220, 38, 38, 0.1);
+            padding: 0.3rem 0.75rem;
+            border-radius: 50px;
+            border: 1px solid var(--border-super);
+        }
+        .btn-logout {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #fff;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Container */
+        .page-container {
+            padding: 7rem 2rem 4rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Card Container */
+        .super-card {
+            background: var(--card-super);
+            border: 1px solid var(--border-super);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            padding: 1rem;
+            background: rgba(220, 38, 38, 0.1);
+            color: #fca5a5;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-super);
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e4e4e7;
+        }
+        tr.banned-row {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.25rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: inline-block;
+        }
+        .badge-superadmin { background: #f59e0b; color: #000; }
+        .badge-admin { background: #a855f7; color: #fff; }
+        .badge-user { background: #4b5563; color: #fff; }
+        .badge-banned { background: #dc2626; color: #fff; font-weight: 900; }
+        .badge-active { background: #10b981; color: #fff; }
+        .badge-pending { background: #f59e0b; color: #000; }
+        .badge-reviewed { background: #3b82f6; color: #fff; }
+        .badge-resolved { background: #10b981; color: #fff; }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .btn-act {
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-purple { background: rgba(168,85,247,0.15); color: #a855f7; border-color: rgba(168,85,247,0.3); }
+        .btn-purple:hover { background: #a855f7; color: #fff; }
+        .btn-gray { background: rgba(75,85,99,0.2); color: #9ca3af; border-color: rgba(75,85,99,0.3); }
+        .btn-gray:hover { background: #4b5563; color: #fff; }
+        .btn-red { background: rgba(220,38,38,0.15); color: #ef4444; border-color: rgba(220,38,38,0.3); }
+        .btn-red:hover { background: #dc2626; color: #fff; }
+        .btn-green { background: rgba(16,185,129,0.15); color: #10b981; border-color: rgba(16,185,129,0.3); }
+        .btn-green:hover { background: #10b981; color: #fff; }
+        .btn-orange { background: rgba(249,115,22,0.15); color: #f97316; border-color: rgba(249,115,22,0.3); }
+        .btn-orange:hover { background: #f97316; color: #fff; }
+        .btn-darkred { background: rgba(153,27,27,0.3); color: #fca5a5; border-color: rgba(153,27,27,0.5); }
+        .btn-darkred:hover { background: #991b1b; color: #fff; }
+        .btn-blue { background: rgba(59,130,246,0.15); color: #3b82f6; border-color: rgba(59,130,246,0.3); }
+        .btn-blue:hover { background: #3b82f6; color: #fff; }
+
+        .btn-primary-red {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary-red:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220,38,38,0.5);
+        }
+
+        .form-control-super {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-super);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            margin-top: 0.4rem;
+        }
+        .form-control-super:focus {
+            border-color: var(--accent-red);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- SHARED SUPER ADMIN NAVBAR -->
+    <nav class="super-nav">
+        <div class="nav-left">
+            <a href="dashboard.html" class="nav-logo">
+                <span class="crown">👑</span> DeepGuard Super Admin
+            </a>
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-item ">📊 Dashboard</a>
+<a href="users.html" class="nav-item active">👥 Users</a>
+<a href="admins.html" class="nav-item ">🛡️ Admins</a>
+<a href="detections.html" class="nav-item ">🔍 Detections</a>
+<a href="reports.html" class="nav-item ">🚩 Reports</a>
+<a href="settings.html" class="nav-item ">⚙️ Settings</a>
+<a href="announcements.html" class="nav-item ">📢 Announcements</a>
+
+            </div>
+        </div>
+        <div class="nav-right">
+            <span class="user-badge">Super Administrator</span>
+            <button onclick="superLogout()" class="btn-logout">Logout</button>
+        </div>
+    </nav>
+    <main class="page-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">👥 User Management</h1>
+                <div class="page-subtitle">View, promote, ban, and manage all platform user accounts</div>
+            </div>
+            <div style="font-size: 0.9rem; font-weight: 700; background: rgba(220,38,38,0.15); border: 1px solid var(--border-super); padding: 0.5rem 1rem; border-radius: 50px;">
+                Total: <span id="userCount">0</span> Users
+            </div>
+        </div>
+
+        <div class="super-card" style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+            <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="Search user by name or email..." class="form-control-super" style="max-width: 350px; margin: 0;">
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-act btn-gray" onclick="setFilter('all', this)" id="filterAll">All</button>
+                <button class="btn-act btn-green" onclick="setFilter('active', this)">Active</button>
+                <button class="btn-act btn-red" onclick="setFilter('banned', this)">Banned</button>
+            </div>
+        </div>
+
+        <div class="super-card" style="padding: 0; overflow: hidden;">
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined Date</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable">
+                        <tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Pagination Controls -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-top: 1px solid var(--border-super); background: rgba(0,0,0,0.2);">
+                <div style="font-size: 0.85rem; color: var(--text-muted);" id="pageInfo">Showing 1-10</div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-act btn-gray" id="prevBtn" onclick="changePage(-1)">Previous</button>
+                    <button class="btn-act btn-gray" id="nextBtn" onclick="changePage(1)">Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        const API_BASE = (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        ) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+        const superToken = localStorage.getItem('superadmin_token') || localStorage.getItem('token');
+
+        if (!superToken) {
+            window.location.href = 'login.html';
+        }
+
+        const headers = {
+            'Authorization': 'Bearer ' + superToken,
+            'Content-Type': 'application/json'
+        };
+
+        function superLogout() {
+            localStorage.removeItem('superadmin_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <script>
+        let allUsers = [];
+        let filteredUsers = [];
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const pageSize = 10;
+
+        async function loadUsers() {
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/users`, { headers });
+                if (!res.ok) return;
+                allUsers = await res.json();
+                document.getElementById('userCount').textContent = allUsers.length;
+                applyFilters();
+            } catch(e) { console.error(e); }
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function filterUsers() {
+            currentPage = 1;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            filteredUsers = allUsers.filter(u => {
+                const matchesQuery = u.name.toLowerCase().includes(query) || u.email.toLowerCase().includes(query);
+                const matchesFilter = currentFilter === 'all' ? true : (currentFilter === 'banned' ? u.is_banned : !u.is_banned);
+                return matchesQuery && matchesFilter;
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('usersTable');
+            const start = (currentPage - 1) * pageSize;
+            const pageUsers = filteredUsers.slice(start, start + pageSize);
+
+            if (pageUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted);">No users found matching query.</td></tr>';
+                document.getElementById('pageInfo').textContent = 'Showing 0 of 0';
+                return;
+            }
+
+            tbody.innerHTML = pageUsers.map(u => `
+                <tr class="${u.is_banned ? 'banned-row' : ''}">
+                    <td style="font-weight:700; color:var(--text-muted);">#${u.id}</td>
+                    <td style="font-weight:700; color:#fff;">${u.name}</td>
+                    <td>${u.email}</td>
+                    <td>
+                        <span class="badge badge-${u.role}">${u.role}</span>
+                    </td>
+                    <td>
+                        ${u.is_banned ? '<span class="badge badge-banned">BANNED</span>' : '<span class="badge badge-active">ACTIVE</span>'}
+                    </td>
+                    <td style="font-size:0.8rem; color:var(--text-muted);">${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td class="actions">
+                        ${u.role === 'admin' 
+                            ? `<button onclick="changeRole(${u.id},'user')" class="btn-act btn-gray">Demote</button>` 
+                            : `<button onclick="changeRole(${u.id},'admin')" class="btn-act btn-purple">Promote</button>`}
+                        <button onclick="toggleBan(${u.id}, ${!u.is_banned})" class="btn-act ${u.is_banned ? 'btn-green' : 'btn-red'}">
+                            ${u.is_banned ? 'Unban' : 'Ban'}
+                        </button>
+                        <button onclick="resetPassword(${u.id})" class="btn-act btn-orange">Reset Pass</button>
+                        <button onclick="deleteUser(${u.id})" class="btn-act btn-darkred">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            const end = Math.min(start + pageSize, filteredUsers.length);
+            document.getElementById('pageInfo').textContent = `Showing ${start + 1}-${end} of ${filteredUsers.length}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = end >= filteredUsers.length;
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderTable();
+        }
+
+        async function changeRole(userId, role) {
+            if(!confirm(`Change user role to ${role.toUpperCase()}?`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/users/${userId}/role`, {
+                    method: 'PUT', headers, body: JSON.stringify({ role })
+                });
+                if(res.ok) loadUsers();
+            } catch(e) { alert('Connection error'); }
+        }
+
+        async function toggleBan(userId, ban) {
+            const action = ban ? 'ban' : 'unban';
+            if(!confirm(`Are you sure to ${action.toUpperCase()} this user?`)) return;
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/users/${userId}/ban`, {
+                    method: 'PUT', headers, body: JSON.stringify({ ban })
+                });
+                if(res.ok) loadUsers();
+            } catch(e) { alert('Connection error'); }
+        }
+
+        async function resetPassword(userId) {
+            const newPass = prompt('Enter new password for user:');
+            if(!newPass) return;
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/users/${userId}/reset-password`, {
+                    method: 'PUT', headers, body: JSON.stringify({ new_password: newPass })
+                });
+                if(res.ok) alert('Password reset successfully!');
+            } catch(e) { alert('Connection error'); }
+        }
+
+        async function deleteUser(userId) {
+            if(!confirm('DELETE this user permanently?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/users/${userId}`, {
+                    method: 'DELETE', headers
+                });
+                if(res.ok) loadUsers();
+            } catch(e) { alert('Connection error'); }
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>

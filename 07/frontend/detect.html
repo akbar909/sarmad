@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection - DeepGuard User</title>
+    <link rel="stylesheet" href="css/style.css?v=1785129584">
+    <style>
+        .user-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .user-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(20px);
+        }
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        
+        .main-content {
+            padding: 8rem 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* Category Selector CSS */
+        .category-selector {
+            margin-bottom: 2.5rem;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 768px) {
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .cat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease !important;
+        }
+        .cat-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .cat-card.selected {
+            border-color: var(--primary) !important;
+            background: rgba(124, 58, 237, 0.15) !important;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+        }
+
+        /* Result Card & Evidence-Based Forensic UI */
+        .result-card {
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background: var(--bg-card);
+        }
+        .result-header {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .result-header.genuine {
+            background: linear-gradient(90deg, rgba(16,185,129,0.15) 0%, transparent 100%);
+        }
+        .result-header.fake {
+            background: linear-gradient(90deg, rgba(239,68,68,0.15) 0%, transparent 100%);
+        }
+        .result-header.uncertain {
+            background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, transparent 100%);
+        }
+
+        .confidence-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        .confidence-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease-out;
+        }
+        .confidence-bar-fill.genuine { background: var(--success); }
+        .confidence-bar-fill.fake { background: var(--danger); }
+        .confidence-bar-fill.uncertain { background: #F59E0B; }
+        
+        /* Risk Banner */
+        .risk-banner {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .risk-HIGH { background: #EF4444; color: #ffffff; box-shadow: 0 4px 14px rgba(239,68,68,0.3); }
+        .risk-MEDIUM { background: #F59E0B; color: #ffffff; box-shadow: 0 4px 14px rgba(245,158,11,0.3); }
+        .risk-LOW { background: #10B981; color: #ffffff; box-shadow: 0 4px 14px rgba(16,185,129,0.3); }
+        .risk-UNKNOWN { background: #6B7280; color: #ffffff; }
+
+        /* Evidence Grid */
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 1.5rem 0;
+        }
+        @media (max-width: 768px) {
+            .evidence-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .evidence-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .evidence-item:hover {
+            border-color: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.05);
+        }
+        .evidence-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .evidence-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .evidence-score {
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.2rem 0.65rem;
+            border-radius: 50px;
+            text-transform: capitalize;
+        }
+        .score-green {
+            background: rgba(16,185,129,0.15);
+            color: #10B981;
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+        .score-yellow {
+            background: rgba(245,158,11,0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+        .score-red {
+            background: rgba(239,68,68,0.15);
+            color: #EF4444;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+        .score-gray {
+            background: rgba(156,163,175,0.15);
+            color: #9CA3AF;
+            border: 1px solid rgba(156,163,175,0.3);
+        }
+        .evidence-detail {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Recommendations and banners */
+        .recommendation-box {
+            background: rgba(124, 58, 237, 0.08);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .recommendation-box h4 {
+            margin: 0 0 0.4rem 0;
+            color: #a78bfa;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .recommendation-box p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .uncertain-banner {
+            background: rgba(245,158,11,0.12);
+            border: 1px solid rgba(245,158,11,0.35);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: #fbbf24;
+            font-weight: 600;
+        }
+        .uncertain-banner p {
+            margin: 0.4rem 0 0;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 0.88rem;
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: rgba(124, 58, 237, 0.2); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+            50% { border-color: var(--primary); box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
+            100% { border-color: rgba(124, 58, 237, 0.2); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
+        }
+        .drop-zone.pulsing {
+            animation: pulse-border 2s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- User Navigation -->
+    <nav class="user-nav">
+        <div class="user-nav-left">
+            <div class="dropdown">
+                <div class="nav-brand" style="cursor: pointer;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    DeepGuard
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px; color:var(--text-secondary)"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="dropdown-menu">
+                    <a href="dashboard.html" class="dropdown-item">📊 Dashboard</a>
+                    <a href="detect.html" class="dropdown-item">🔍 New Detection</a>
+                    <a href="history.html" class="dropdown-item">📜 My History</a>
+                    <a href="chat.html" class="dropdown-item">🤖 AI Assistant</a>
+                    <a href="learn-more.html" class="dropdown-item">💡 Learn More</a>
+                    <a href="about.html" class="dropdown-item">ℹ️ About Us</a>
+                </div>
+            </div>
+        </div>
+        <div class="user-nav-right" style="display: flex; gap: 1rem; align-items: center;">
+            <span class="auth-name" style="font-weight: 500; color: var(--text-primary);">User</span>
+            <button onclick="logout()" class="btn btn-ghost" style="padding: 0.5rem 1rem;">Log out</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="animate" style="margin-bottom: 3rem; text-align: center;">
+            <span class="badge">Forensic AI Detection Engine</span>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Evidence-Based Forensic Analysis</h1>
+            <p class="text-secondary">Upload a product photo for deep multi-layer forensic analysis and comprehensive risk assessment.</p>
+        </header>
+
+        <div class="animate" data-delay="100" style="max-width: 800px; margin: 0 auto;">
+            
+            <!-- Category Selector - OPTIONAL HINT -->
+            <div class="category-selector">
+                <label style="display: block; font-weight: 600; color: var(--text-primary); margin-bottom: 0.4rem; text-align: center; font-size: 1.1rem;">Optional: Help AI Focus on a Category</label>
+                <p style="text-align:center; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1rem;">🤖 AI will auto-detect the product type from the image. Select a category only as a hint.</p>
+                <div class="category-grid">
+                    <div class="cat-card" data-category="footwear" id="cat-footwear">
+                        <span style="font-size: 2rem;">👟</span>
+                        <span style="font-weight: 600; color: var(--text-primary);">Footwear</span>
+                    </div>
+                    <div class="cat-card" data-category="electronics" id="cat-electronics">
+                        <span style="font-size: 2rem;">🔌</span>
+                        <span style="font-weight: 600; color: var(--text-primary);">Electronics</span>
+                    </div>
+                    <div class="cat-card" data-category="medicine" id="cat-medicine">
+                        <span style="font-size: 2rem;">💊</span>
+                        <span style="font-weight: 600; color: var(--text-primary);">Medicine</span>
+                    </div>
+                    <div class="cat-card" data-category="cosmetics" id="cat-cosmetics">
+                        <span style="font-size: 2rem;">✨</span>
+                        <span style="font-weight: 600; color: var(--text-primary);">Cosmetics</span>
+                    </div>
+                </div>
+                <p style="text-align:center; color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.75rem;">Click a category to select it as a hint (click again to deselect)</p>
+            </div>
+
+            <form id="detectForm">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </div>
+                    <h3 style="margin-bottom: 0.5rem;">Drag and drop your image here</h3>
+                    <p class="text-secondary" style="margin-bottom: 1.5rem;">or click to browse from your computer (JPG, PNG)</p>
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;" required>
+                    <button type="button" class="btn btn-ghost" onclick="document.getElementById('imageInput').click()">Browse Image</button>
+                    <div id="imagePreview" style="margin-top: 2rem; display: none;">
+                        <img src="" id="previewImg" style="max-width: 100%; max-height: 300px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" id="analyzeBtn" style="padding: 1rem 3rem; font-size: 1.1rem; width: 100%; max-width: 300px;" disabled>
+                        Analyze Product
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="resultSection" style="display: none; max-width: 850px; margin: 4rem auto 0;">
+            <!-- Result will be injected here via JS -->
+        </div>
+
+        <script>
+        const API_BASE = (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        ) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+        function getScoreClass(scoreStr) {
+            const s = (scoreStr || '').toLowerCase().trim();
+            if (['high', 'consistent', 'authentic', 'normal', 'matches', 'none'].includes(s)) return 'score-green';
+            if (['medium', 'suspicious', 'minor'].includes(s)) return 'score-yellow';
+            if (['low', 'inconsistent', 'anomaly detected', 'anomaly', 'mismatch', 'major'].includes(s)) return 'score-red';
+            return 'score-gray';
+        }
+
+        function resetUploadForm() {
+            const imageInput = document.getElementById('imageInput');
+            const previewImg = document.getElementById('previewImg');
+            const imagePreview = document.getElementById('imagePreview');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const resultSection = document.getElementById('resultSection');
+
+            if (imageInput) imageInput.value = '';
+            if (previewImg) previewImg.src = '';
+            if (imagePreview) imagePreview.style.display = 'none';
+            if (analyzeBtn) {
+                analyzeBtn.innerHTML = 'Analyze Product';
+                analyzeBtn.disabled = true;
+            }
+            if (resultSection) {
+                resultSection.style.display = 'none';
+                resultSection.innerHTML = '';
+            }
+            const dropZone = document.getElementById('dropZone');
+            if (dropZone) dropZone.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth('user');
+            
+            let selectedCategory = null;
+
+            // Category Card Toggle
+            document.querySelectorAll('.cat-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    if (card.classList.contains('selected')) {
+                        card.classList.remove('selected');
+                        selectedCategory = null;
+                    } else {
+                        document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+                        card.classList.add('selected');
+                        selectedCategory = card.getAttribute('data-category');
+                    }
+                });
+            });
+
+            const dropZone = document.getElementById('dropZone');
+            const imageInput = document.getElementById('imageInput');
+            const previewImg = document.getElementById('previewImg');
+            const imagePreview = document.getElementById('imagePreview');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+
+            dropZone.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') imageInput.click();
+            });
+            
+            imageInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImg.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                        analyzeBtn.disabled = false;
+                    }
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            document.getElementById('detectForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!imageInput.files[0]) return;
+                
+                analyzeBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite; vertical-align:middle;"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg> Analyzing Product...';
+                analyzeBtn.disabled = true;
+                dropZone.classList.add('pulsing');
+                
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('file', imageInput.files[0]);
+                    if (selectedCategory) formData.append('category', selectedCategory);
+
+                    const response = await fetch(`${API_BASE}/detection/upload`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: formData
+                    });
+
+                    if (response.status === 401) {
+                        localStorage.clear();
+                        window.location.href = 'login.html';
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.detail || `Server error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    let resultHTML = '';
+
+                    if (data.needs_retake || data.result === "Unclear Image") {
+                        // 1. PHOTO NOT CLEAR ENOUGH (amber card)
+                        resultHTML = `
+                            <div class="result-card" style="border: 1px solid rgba(245,158,11,0.4); background: var(--bg-card); box-shadow: 0 4px 20px rgba(245,158,11,0.1);">
+                                <div style="padding: 1.5rem 2rem; border-bottom: 1px solid rgba(245,158,11,0.25); background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, transparent 100%); display:flex; align-items:center; gap:14px;">
+                                    <span style="font-size:2.2rem;">📷</span>
+                                    <div>
+                                        <h3 style="color:#fbbf24; font-size:1.4rem; margin:0;">Photo Not Clear Enough</h3>
+                                        <p style="margin:0.2rem 0 0; color:var(--text-secondary); font-size:0.85rem;">Pre-scan image quality check</p>
+                                    </div>
+                                </div>
+                                <div style="padding: 2rem;">
+                                    <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2rem;">
+                                        <p style="margin:0; font-size:1rem; color:var(--text-primary); line-height:1.6;">
+                                            ${data.explanation || 'The image quality is insufficient for accurate analysis. Please upload a clearer, well-lit photo.'}
+                                        </p>
+                                    </div>
+                                    <div style="display:flex; justify-content:center;">
+                                        <button type="button" class="btn btn-primary" onclick="resetUploadForm()" style="background: #F59E0B; border-color: #F59E0B; color: #000; font-weight:700; padding: 0.85rem 2.5rem; font-size: 1rem;">
+                                            📷 Retake Photo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else if (data.result === "Fake") {
+                        // 2. FAKE (red card)
+                        const confVal = typeof data.confidence === 'number' ? data.confidence : 75;
+                        const score = confVal > 1 ? confVal.toFixed(1) : (confVal * 100).toFixed(1);
+                        const aiCat = data.category || 'General';
+
+                        resultHTML = `
+                            <div class="result-card" style="border: 1px solid rgba(239,68,68,0.4);">
+                                <div class="result-header fake" style="padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: linear-gradient(90deg, rgba(239,68,68,0.15) 0%, transparent 100%);">
+                                    <div>
+                                        <h3 style="color:var(--text-primary); font-size:1.5rem; margin:0; display:flex; align-items:center; gap:8px;">
+                                            <span>❌</span> Counterfeit Detected
+                                        </h3>
+                                        <div style="margin-top:0.4rem;">
+                                            <span style="background:var(--bg-secondary); color:var(--text-secondary); border:1px solid var(--border-color); padding:0.25rem 0.8rem; border-radius:50px; font-size:0.8rem;">📦 Category: ${aiCat}</span>
+                                        </div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-size:2.2rem; font-weight:800; color:var(--danger); line-height:1;">${score}%</div>
+                                        <div style="font-size:0.85rem; color:var(--text-secondary);">Confidence</div>
+                                    </div>
+                                </div>
+                                <div style="padding: 2rem;">
+                                    <div class="confidence-bar-bg">
+                                        <div class="confidence-bar-fill fake" style="width:${score}%; background:var(--danger);"></div>
+                                    </div>
+                                    <h4 style="margin-top:1.5rem; margin-bottom:0.75rem; color:var(--text-primary); font-size:1.05rem;">📋 AI Forensic Summary</h4>
+                                    <div style="background:var(--bg-secondary); padding:1.25rem 1.5rem; border-radius:12px; border:1px solid var(--border-color); color:var(--text-secondary); line-height:1.7; font-size:0.92rem;">
+                                        ${(data.explanation || 'Visual analysis detected counterfeit anomalies.').replace(/\n/g, '<br>')}
+                                    </div>
+                                    <div class="recommendation-box" style="margin-top:1.5rem; border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.06);">
+                                        <h4 style="color: #f87171;">💡 Recommendation:</h4>
+                                        <p>${data.recommendation || 'Counterfeit indicators detected. Avoid transaction or purchase.'}</p>
+                                    </div>
+                                    <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:flex-end; flex-wrap:wrap;">
+                                        <a href="chat.html?context=${encodeURIComponent('Forensic Scan: Counterfeit (' + aiCat + ') with ' + score + '% confidence. Summary: ' + (data.explanation || ''))}" class="btn btn-ghost">💬 Discuss with AI Assistant</a>
+                                        <a href="report-detail.html?id=${data.id || ''}" class="btn btn-primary" style="padding:0.6rem 1.5rem; background: var(--danger); border-color: var(--danger);">View Full Certificate Report</a>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else if (data.result === "Genuine") {
+                        // 1. GENUINE (green card)
+                        const confVal = typeof data.confidence === 'number' ? data.confidence : 85;
+                        const score = confVal > 1 ? confVal.toFixed(1) : (confVal * 100).toFixed(1);
+                        const aiCat = data.category || 'General';
+
+                        resultHTML = `
+                            <div class="result-card" style="border: 1px solid rgba(16,185,129,0.4);">
+                                <div class="result-header genuine" style="padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); background: linear-gradient(90deg, rgba(16,185,129,0.15) 0%, transparent 100%);">
+                                    <div>
+                                        <h3 style="color:var(--text-primary); font-size:1.5rem; margin:0; display:flex; align-items:center; gap:8px;">
+                                            <span>✅</span> Genuine Product
+                                        </h3>
+                                        <div style="margin-top:0.4rem;">
+                                            <span style="background:var(--bg-secondary); color:var(--text-secondary); border:1px solid var(--border-color); padding:0.25rem 0.8rem; border-radius:50px; font-size:0.8rem;">📦 Category: ${aiCat}</span>
+                                        </div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-size:2.2rem; font-weight:800; color:var(--success); line-height:1;">${score}%</div>
+                                        <div style="font-size:0.85rem; color:var(--text-secondary);">Confidence</div>
+                                    </div>
+                                </div>
+                                <div style="padding: 2rem;">
+                                    <div class="confidence-bar-bg">
+                                        <div class="confidence-bar-fill genuine" style="width:${score}%; background:var(--success);"></div>
+                                    </div>
+                                    <h4 style="margin-top:1.5rem; margin-bottom:0.75rem; color:var(--text-primary); font-size:1.05rem;">📋 AI Forensic Summary</h4>
+                                    <div style="background:var(--bg-secondary); padding:1.25rem 1.5rem; border-radius:12px; border:1px solid var(--border-color); color:var(--text-secondary); line-height:1.7; font-size:0.92rem;">
+                                        ${(data.explanation || 'Visual analysis indicates genuine product characteristics.').replace(/\n/g, '<br>')}
+                                    </div>
+                                    <div class="recommendation-box" style="margin-top:1.5rem;">
+                                        <h4>💡 Recommendation:</h4>
+                                        <p>${data.recommendation || 'Product exhibits authentic characteristics consistent with genuine standards.'}</p>
+                                    </div>
+                                    <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:flex-end; flex-wrap:wrap;">
+                                        <a href="chat.html?context=${encodeURIComponent('Forensic Scan: Genuine (' + aiCat + ') with ' + score + '% confidence. Summary: ' + (data.explanation || ''))}" class="btn btn-ghost">💬 Discuss with AI Assistant</a>
+                                        <a href="report-detail.html?id=${data.id || ''}" class="btn btn-primary" style="padding:0.6rem 1.5rem;">View Full Certificate Report</a>
+                                    </div>
+                                </div>
+                            </div>`;
+                    } else {
+                        // 3. INDETERMINATE / INCONCLUSIVE (neutral gray card)
+                        const aiCat = data.category || 'Unknown';
+
+                        resultHTML = `
+                            <div class="result-card" style="border: 1px solid rgba(148,163,184,0.4); background: var(--bg-card);">
+                                <div style="padding: 1.5rem 2rem; border-bottom: 1px solid rgba(148,163,184,0.25); background: linear-gradient(90deg, rgba(148,163,184,0.15) 0%, transparent 100%); display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <h3 style="color:var(--text-primary); font-size:1.5rem; margin:0; display:flex; align-items:center; gap:8px;">
+                                            <span>⚠️</span> Could Not Determine
+                                        </h3>
+                                        <div style="margin-top:0.4rem;">
+                                            <span style="background:var(--bg-secondary); color:var(--text-secondary); border:1px solid var(--border-color); padding:0.25rem 0.8rem; border-radius:50px; font-size:0.8rem;">📦 Category: ${aiCat}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="padding: 2rem;">
+                                    <h4 style="margin-top:0; margin-bottom:0.75rem; color:var(--text-primary); font-size:1.05rem;">📋 Analysis Note</h4>
+                                    <div style="background:var(--bg-secondary); padding:1.25rem 1.5rem; border-radius:12px; border:1px solid var(--border-color); color:var(--text-secondary); line-height:1.7; font-size:0.92rem;">
+                                        ${(data.explanation || 'Analysis could not reach a definitive conclusion.').replace(/\n/g, '<br>')}
+                                    </div>
+                                    <div class="recommendation-box" style="margin-top:1.5rem; border-color: rgba(148,163,184,0.3); background: rgba(148,163,184,0.06);">
+                                        <h4 style="color: #94a3b8;">💡 Recommendation:</h4>
+                                        <p>${data.recommendation || 'Could not reach a definitive conclusion. Try retaking with a clearer angle or better lighting.'}</p>
+                                    </div>
+                                    <div style="margin-top:2rem; display:flex; justify-content:center;">
+                                        <button type="button" class="btn btn-primary" onclick="resetUploadForm()" style="padding: 0.85rem 2.5rem; font-size: 1rem;">
+                                            📷 Try Another Photo
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }
+
+                    const resultSection = document.getElementById('resultSection');
+                    resultSection.innerHTML = resultHTML;
+                    resultSection.style.display = 'block';
+                    resultSection.scrollIntoView({ behavior: 'smooth' });
+
+                } catch (error) {
+                    console.error('[DeepGuard] Detection error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Analysis Failed',
+                        text: error.message || 'Error processing image. Check backend connection.',
+                        background: 'var(--bg-secondary)',
+                        color: 'var(--text-primary)'
+                    });
+                } finally {
+                    analyzeBtn.innerHTML = 'Analyze Product';
+                    analyzeBtn.disabled = false;
+                    dropZone.classList.remove('pulsing');
+                }
+            });
+        });
+        </script>
+        <style>
+            @keyframes spin { 100% { transform: rotate(360deg); } }
+        </style>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/animations.js?v=1785129584"></script>
+    <script src="js/auth.js?v=1785129584"></script>
+</body>
+</html>

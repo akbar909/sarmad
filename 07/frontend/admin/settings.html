@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - DeepGuard Admin</title>
+    <link rel="stylesheet" href="../css/style.css?v=1785129584">
+    <style>
+        .admin-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .admin-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(20px);
+        }
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        
+        .main-content {
+            padding: 8rem 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+        <nav class="admin-nav">
+        <div class="admin-nav-left">
+            <div class="dropdown">
+                <div class="nav-brand" style="cursor: pointer;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Admin Panel
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px; color:var(--text-secondary)"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="dropdown-menu">
+                    <a href="dashboard.html" class="dropdown-item">📈 Overview</a>
+                    <a href="users.html" class="dropdown-item">👥 Manage Users</a>
+                    <a href="detections.html" class="dropdown-item">🔍 All Detections</a>
+                    <a href="reports.html" class="dropdown-item">📋 Reports</a>
+                    <a href="settings.html" class="dropdown-item">⚙️ System Settings</a>
+                    <div style="border-top: 1px solid var(--border-color); margin: 0.5rem 0;"></div>
+                    <a href="../detect.html" class="dropdown-item">🧪 Test Detection</a>
+                    <a href="../chat.html" class="dropdown-item">🤖 Test AI Chat</a>
+                    <a href="../index.html" class="dropdown-item">🌐 View Main Site</a>
+                </div>
+            </div>
+        </div>
+        <div class="admin-nav-right" style="display: flex; gap: 1rem; align-items: center;">
+            <!-- Admin Profile Dropdown -->
+            <div class="dropdown" style="position: relative;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.4rem 0.75rem; border-radius: 12px; border: 1px solid var(--border-color); background: var(--bg-card); transition: all 0.2s;">
+                    <div id="adminAvatar" style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #a855f7); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff;">AD</div>
+                    <div style="line-height: 1.2;">
+                        <div id="adminName" style="font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">Admin</div>
+                        <div style="font-size: 0.7rem; color: var(--text-secondary);">Administrator</div>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-secondary)"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="dropdown-menu" style="right: 0; left: auto; min-width: 260px;">
+                    <div style="padding: 1rem 1.5rem; border-bottom: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #a855f7); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;">AD</div>
+                            <div>
+                                <div id="adminNameDropdown" style="font-weight: 700; color: var(--text-primary); font-size: 0.95rem;">Admin</div>
+                                <div id="adminEmailDropdown" style="font-size: 0.8rem; color: var(--text-secondary);">admin@deepguard.com</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <span style="padding: 0.15rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05)); color: #F59E0B; border: 1px solid rgba(245,158,11,0.3);">👑 Administrator</span>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">MUET Jamshoro</div>
+                    </div>
+                    <a href="settings.html" class="dropdown-item">🔧 Settings</a>
+                    <a href="#" onclick="logout()" class="dropdown-item" style="color: var(--danger);">🚪 Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="animate" style="margin-bottom: 3rem;">
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Settings</h1>
+            <p class="text-muted">Configure your preferences and AI model settings.</p>
+        </header>
+
+        <h2 class="animate" data-delay="100" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-secondary);">Display</h2>
+        <div class="glass-card animate" data-delay="100" style="padding: 0; margin-bottom: 2rem; overflow: hidden; cursor: pointer;">
+            <div class="theme-toggle-row" onclick="toggleTheme()" style="display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 2rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span id="themeEmoji" style="font-size: 1.5rem;">🌙</span>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-primary);">Theme</div>
+                        <div id="themeLabel" style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.25rem;">Dark</div>
+                    </div>
+                </div>
+                <div class="toggle-switch" id="toggleSwitch"></div>
+            </div>
+        </div>
+
+        <h2 class="animate" data-delay="200" style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-secondary);">AI Model Configuration</h2>
+        <div class="glass-card animate" data-delay="200">
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label class="form-label" for="llmProvider">Active LLM Provider</label>
+                    <select id="llmProvider" class="form-input" style="appearance: none;">
+                        <option value="groq">Groq Qwen/Llama (Default & Fastest)</option>
+                        <option value="claude">Anthropic Claude</option>
+                        <option value="openai">OpenAI GPT-4o</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label class="form-label" for="groqKey">Groq API Key</label>
+                    <input type="password" id="groqKey" class="form-input" placeholder="gsk_...">
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label class="form-label" for="claudeKey">Anthropic API Key</label>
+                    <input type="password" id="claudeKey" class="form-input" placeholder="sk-ant-api03-...">
+                </div>
+                
+                <div class="form-group" style="margin-top: 1.5rem; margin-bottom: 2rem;">
+                    <label class="form-label" for="openaiKey">OpenAI API Key</label>
+                    <input type="password" id="openaiKey" class="form-input" placeholder="sk-...">
+                </div>
+                
+                <button type="submit" id="saveSettingsBtn" class="btn btn-primary" style="width: 100%;">Save Configuration</button>
+            </form>
+        </div>
+        
+        <script>
+            const API_BASE = (
+                window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1'
+            ) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+            async function loadSettings() {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                try {
+                    const res = await fetch(`${API_BASE}/admin/settings`, {
+                        headers: { 'Authorization': 'Bearer ' + token }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.llm_provider) document.getElementById('llmProvider').value = data.llm_provider;
+                        if (data.groq_key) document.getElementById('groqKey').value = data.groq_key;
+                        if (data.anthropic_key) document.getElementById('claudeKey').value = data.anthropic_key;
+                        if (data.openai_key) document.getElementById('openaiKey').value = data.openai_key;
+                    }
+                } catch (e) {
+                    console.error('Failed to load settings:', e);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                checkAuth('admin');
+                populateAdminIdentity();
+                loadSettings();
+                
+                document.getElementById('settingsForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const token = localStorage.getItem('token');
+                    const btn = document.getElementById('saveSettingsBtn');
+                    btn.textContent = 'Saving...';
+                    btn.disabled = true;
+
+                    const payload = {
+                        llm_provider: document.getElementById('llmProvider').value,
+                        groq_key: document.getElementById('groqKey').value.trim(),
+                        anthropic_key: document.getElementById('claudeKey').value.trim(),
+                        openai_key: document.getElementById('openaiKey').value.trim()
+                    };
+
+                    try {
+                        const res = await fetch(`${API_BASE}/admin/settings/update`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await res.json();
+
+                        if (res.ok) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Settings Saved!',
+                                text: data.message || 'AI Provider configuration updated successfully.',
+                                background: 'var(--bg-secondary)',
+                                color: 'var(--text-primary)',
+                                confirmButtonColor: '#7C3AED'
+                            });
+                        } else {
+                            throw new Error(data.detail || 'Failed to save settings');
+                        }
+                    } catch (err) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Save Failed',
+                            text: err.message || 'Could not connect to backend.',
+                            background: 'var(--bg-secondary)',
+                            color: 'var(--text-primary)'
+                        });
+                    } finally {
+                        btn.textContent = 'Save Configuration';
+                        btn.disabled = false;
+                    }
+                });
+            });
+        
+        // Populate admin identity from localStorage/JWT
+        function populateAdminIdentity() {
+            const userName = localStorage.getItem('userName') || localStorage.getItem('user_name') || 'Admin';
+            let userEmail = localStorage.getItem('userEmail') || '';
+
+            // Fallback: extract email from JWT token
+            if (!userEmail) {
+                try {
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        const base64Url = token.split('.')[1];
+                        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                        const payload = JSON.parse(atob(base64));
+                        userEmail = payload.sub || '';
+                    }
+                } catch(e) {}
+            }
+
+            const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+
+            // Navbar avatar and name
+            const adminAvatar = document.getElementById('adminAvatar');
+            if (adminAvatar) adminAvatar.textContent = initials;
+            const adminName = document.getElementById('adminName');
+            if (adminName) adminName.textContent = userName;
+
+            // Dropdown profile
+            const adminNameDD = document.getElementById('adminNameDropdown');
+            if (adminNameDD) adminNameDD.textContent = userName;
+            const adminEmailDD = document.getElementById('adminEmailDropdown');
+            if (adminEmailDD) adminEmailDD.textContent = userEmail || 'admin@deepguard.com';
+
+            // Welcome card (dashboard only)
+            const welcomeName = document.getElementById('welcomeName');
+            if (welcomeName) welcomeName.textContent = userName;
+            const welcomeAvatar = document.getElementById('welcomeAvatar');
+            if (welcomeAvatar) welcomeAvatar.textContent = initials;
+            const welcomeDate = document.getElementById('welcomeDate');
+            if (welcomeDate) welcomeDate.textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        </script>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../js/animations.js?v=1785129584"></script>
+    <script src="../js/auth.js?v=1785129584"></script>
+</body>
+</html>

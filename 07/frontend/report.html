@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Fake Product - DeepGuard</title>
+    <link rel="stylesheet" href="css/style.css?v=1785129584">
+    <style>
+        .report-form { max-width: 600px; margin: 2rem auto; background: var(--bg-card); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="logo">DeepGuard</div>
+        <nav class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="detect.html">Detect</a>
+            <a href="history.html">History</a>
+            <a href="report.html" class="active">Report Fake</a>
+        </nav>
+        <div class="user-menu" style="color:white" onclick="logout()">Logout</div>
+    </header>
+
+    <main class="container" style="padding-top: 6rem;">
+        <h1 style="text-align:center">Report a Fake Product</h1>
+        <p style="text-align:center; color: var(--text-secondary);">Help us improve by reporting fake products you encountered.</p>
+
+        <div class="report-form">
+            <form id="reportForm">
+                <div class="form-group">
+                    <label class="form-label" for="productName">Product Name</label>
+                    <input type="text" id="productName" class="form-input" required placeholder="e.g. Nike Air Max 90">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="category">Category</label>
+                    <select id="category" class="form-input" required>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Footwear">Footwear</option>
+                        <option value="Medicine">Medicine</option>
+                        <option value="Cosmetics">Cosmetics</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="productUrl">Product URL (optional)</label>
+                    <input type="url" id="productUrl" class="form-input" placeholder="https://example.com/product">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea id="description" class="form-input" rows="4" required placeholder="Why do you think it's fake?"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width:100%">Submit Report</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        if (!localStorage.getItem('token')) { window.location.href = 'login.html'; }
+        const API_BASE_URL = localStorage.getItem('apiBaseUrl') || '${API_BASE}';
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('reportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                product_name: document.getElementById('productName').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                product_url: document.getElementById('productUrl').value
+            };
+            
+            const token = localStorage.getItem('token');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/reports/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if(response.ok) {
+                    Swal.fire('Success', 'Report submitted successfully!', 'success');
+                    document.getElementById('reportForm').reset();
+                } else {
+                    const err = await response.json();
+                    Swal.fire('Error', err.detail || 'Failed to submit', 'error');
+                }
+            } catch(e) {
+                Swal.fire('Error', 'Server error', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

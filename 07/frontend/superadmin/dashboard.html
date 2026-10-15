@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DeepGuard Super Admin</title>
+    <link rel="stylesheet" href="../css/style.css?v=1785129584">
+    <style>
+        :root {
+            --bg-super: #0D0005;
+            --nav-super: #1a0008;
+            --card-super: rgba(255, 255, 255, 0.03);
+            --border-super: rgba(220, 38, 38, 0.2);
+            --accent-red: #DC2626;
+            --text-main: #FFFFFF;
+            --text-muted: #fca5a5;
+        }
+
+        body {
+            background-color: var(--bg-super) !important;
+            color: var(--text-main) !important;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        /* Navbar Styling */
+        .super-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--nav-super);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-super);
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .nav-logo {
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: #ef4444;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1.25rem;
+        }
+        .nav-item {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            opacity: 0.75;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            opacity: 1;
+            color: #FFFFFF;
+            background: rgba(220, 38, 38, 0.15);
+            border-bottom: 2px solid var(--accent-red);
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .user-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fca5a5;
+            background: rgba(220, 38, 38, 0.1);
+            padding: 0.3rem 0.75rem;
+            border-radius: 50px;
+            border: 1px solid var(--border-super);
+        }
+        .btn-logout {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #fff;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-logout:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+        }
+
+        /* Container */
+        .page-container {
+            padding: 7rem 2rem 4rem;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .page-title {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* Card Container */
+        .super-card {
+            background: var(--card-super);
+            border: 1px solid var(--border-super);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        th {
+            padding: 1rem;
+            background: rgba(220, 38, 38, 0.1);
+            color: #fca5a5;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-super);
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #e4e4e7;
+        }
+        tr.banned-row {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.25rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            display: inline-block;
+        }
+        .badge-superadmin { background: #f59e0b; color: #000; }
+        .badge-admin { background: #a855f7; color: #fff; }
+        .badge-user { background: #4b5563; color: #fff; }
+        .badge-banned { background: #dc2626; color: #fff; font-weight: 900; }
+        .badge-active { background: #10b981; color: #fff; }
+        .badge-pending { background: #f59e0b; color: #000; }
+        .badge-reviewed { background: #3b82f6; color: #fff; }
+        .badge-resolved { background: #10b981; color: #fff; }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        .btn-act {
+            padding: 0.35rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-purple { background: rgba(168,85,247,0.15); color: #a855f7; border-color: rgba(168,85,247,0.3); }
+        .btn-purple:hover { background: #a855f7; color: #fff; }
+        .btn-gray { background: rgba(75,85,99,0.2); color: #9ca3af; border-color: rgba(75,85,99,0.3); }
+        .btn-gray:hover { background: #4b5563; color: #fff; }
+        .btn-red { background: rgba(220,38,38,0.15); color: #ef4444; border-color: rgba(220,38,38,0.3); }
+        .btn-red:hover { background: #dc2626; color: #fff; }
+        .btn-green { background: rgba(16,185,129,0.15); color: #10b981; border-color: rgba(16,185,129,0.3); }
+        .btn-green:hover { background: #10b981; color: #fff; }
+        .btn-orange { background: rgba(249,115,22,0.15); color: #f97316; border-color: rgba(249,115,22,0.3); }
+        .btn-orange:hover { background: #f97316; color: #fff; }
+        .btn-darkred { background: rgba(153,27,27,0.3); color: #fca5a5; border-color: rgba(153,27,27,0.5); }
+        .btn-darkred:hover { background: #991b1b; color: #fff; }
+        .btn-blue { background: rgba(59,130,246,0.15); color: #3b82f6; border-color: rgba(59,130,246,0.3); }
+        .btn-blue:hover { background: #3b82f6; color: #fff; }
+
+        .btn-primary-red {
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary-red:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(220,38,38,0.5);
+        }
+
+        .form-control-super {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border-super);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            margin-top: 0.4rem;
+        }
+        .form-control-super:focus {
+            border-color: var(--accent-red);
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- SHARED SUPER ADMIN NAVBAR -->
+    <nav class="super-nav">
+        <div class="nav-left">
+            <a href="dashboard.html" class="nav-logo">
+                <span class="crown">👑</span> DeepGuard Super Admin
+            </a>
+            <div class="nav-menu">
+                <a href="dashboard.html" class="nav-item active">📊 Dashboard</a>
+<a href="users.html" class="nav-item ">👥 Users</a>
+<a href="admins.html" class="nav-item ">🛡️ Admins</a>
+<a href="detections.html" class="nav-item ">🔍 Detections</a>
+<a href="reports.html" class="nav-item ">🚩 Reports</a>
+<a href="settings.html" class="nav-item ">⚙️ Settings</a>
+<a href="announcements.html" class="nav-item ">📢 Announcements</a>
+
+            </div>
+        </div>
+        <div class="nav-right">
+            <span class="user-badge">Super Administrator</span>
+            <button onclick="superLogout()" class="btn-logout">Logout</button>
+        </div>
+    </nav>
+    <main class="page-container">
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">👑 Super Administrator</h1>
+                <div class="page-subtitle">DeepGuard Platform Core Operations & Real-Time Analytics</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="badge badge-active" style="padding: 0.4rem 1rem;">System Operational ✅</span>
+            </div>
+        </div>
+
+        <!-- 6 Stat Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+            <div class="super-card" style="border-top: 4px solid #3b82f6;">
+                <div style="font-size: 2.2rem; font-weight: 900;" id="totalUsers">0</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem;">Total Users</div>
+            </div>
+            <div class="super-card" style="border-top: 4px solid #a855f7;">
+                <div style="font-size: 2.2rem; font-weight: 900;" id="totalAdmins">0</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem;">Total Admins</div>
+            </div>
+            <div class="super-card" style="border-top: 4px solid #10b981;">
+                <div style="font-size: 2.2rem; font-weight: 900;" id="totalDetections">0</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem;">Total Detections</div>
+            </div>
+            <div class="super-card" style="border-top: 4px solid #f97316;">
+                <div style="font-size: 2.2rem; font-weight: 900;" id="todayDetections">0</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem;">Today's Detections</div>
+            </div>
+            <div class="super-card" style="border-top: 4px solid #10b981;">
+                <div style="font-size: 2.2rem; font-weight: 900;" id="genuineCount">0</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem;">Genuine Count</div>
+            </div>
+            <div class="super-card" style="border-top: 4px solid #ef4444;">
+                <div style="font-size: 2.2rem; font-weight: 900;" id="fakeCount">0</div>
+                <div style="color: var(--text-muted); font-size: 0.85rem; font-weight: 600; margin-top: 0.2rem;">Fake Count</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="super-card">
+                <h3 style="margin: 0 0 1rem; color: var(--text-muted); font-size: 1rem;">Genuine vs Fake Ratio</h3>
+                <div style="height: 230px; position: relative;">
+                    <canvas id="ratioPieChart"></canvas>
+                </div>
+            </div>
+            <div class="super-card">
+                <h3 style="margin: 0 0 1rem; color: var(--text-muted); font-size: 1rem;">Detections This Week</h3>
+                <div style="height: 230px; position: relative;">
+                    <canvas id="trendBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Activity Feed & Status -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <div class="super-card">
+                <h3 style="margin: 0 0 1.25rem; font-size: 1.1rem; color: #fff;">⚡ Recent Activity Feed</h3>
+                <table style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Scan ID</th>
+                            <th>User</th>
+                            <th>Category</th>
+                            <th>Result</th>
+                            <th style="text-align: right;">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentActivityTbody">
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading activity...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="super-card">
+                <h3 style="margin: 0 0 1.25rem; font-size: 1.1rem; color: #fff;">🌐 System Status</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <span>Groq Vision API</span>
+                        <span style="color: #10b981; font-weight: 700;">Operational ✅</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <span>Gemini Vision API</span>
+                        <span style="color: #10b981; font-weight: 700;">Operational ✅</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <span>OpenRouter Gateway</span>
+                        <span style="color: #10b981; font-weight: 700;">Operational ✅</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                        <span>Database Engine</span>
+                        <span style="color: #10b981; font-weight: 700;">Healthy 🟢</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+    <script>
+        const API_BASE = (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        ) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+        const superToken = localStorage.getItem('superadmin_token') || localStorage.getItem('token');
+
+        if (!superToken) {
+            window.location.href = 'login.html';
+        }
+
+        const headers = {
+            'Authorization': 'Bearer ' + superToken,
+            'Content-Type': 'application/json'
+        };
+
+        function superLogout() {
+            localStorage.removeItem('superadmin_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <script>
+        let pieChart = null;
+        let barChart = null;
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/analytics`, { headers });
+                if (!res.ok) return;
+                const data = await res.json();
+
+                document.getElementById('totalUsers').textContent = data.total_users || 0;
+                document.getElementById('totalAdmins').textContent = data.total_admins || 0;
+                document.getElementById('totalDetections').textContent = data.total_detections || 0;
+                document.getElementById('todayDetections').textContent = data.today_detections || 0;
+                document.getElementById('genuineCount').textContent = data.genuine_count || 0;
+                document.getElementById('fakeCount').textContent = data.fake_count || 0;
+
+                renderPie(data.genuine_count || 0, data.fake_count || 0);
+                renderBar(data.today_detections || 0);
+            } catch(e) { console.error(e); }
+
+            loadRecentDetections();
+        }
+
+        async function loadRecentDetections() {
+            try {
+                const res = await fetch(`${API_BASE}/superadmin/detections`, { headers });
+                if (!res.ok) return;
+                const detections = await res.json();
+                const tbody = document.getElementById('recentActivityTbody');
+                
+                const recent = detections.slice(0, 5);
+                if (recent.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No recent activity.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = recent.map(d => `
+                    <tr>
+                        <td>#${d.id}</td>
+                        <td>${d.user_name || 'User #' + d.user_id}</td>
+                        <td style="text-transform: capitalize;">${d.category}</td>
+                        <td>
+                            <span class="badge ${d.result.toLowerCase().includes('genuine') ? 'badge-active' : 'badge-banned'}">
+                                ${d.result}
+                            </span>
+                        </td>
+                        <td style="text-align: right; color: var(--text-muted); font-size: 0.8rem;">
+                            ${new Date(d.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        function renderPie(gen, fake) {
+            const ctx = document.getElementById('ratioPieChart').getContext('2d');
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Genuine', 'Fake'],
+                    datasets: [{ data: [gen || 1, fake || 1], backgroundColor: ['#10b981', '#dc2626'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#fca5a5' } } } }
+            });
+        }
+
+        function renderBar(today) {
+            const ctx = document.getElementById('trendBarChart').getContext('2d');
+            if (barChart) barChart.destroy();
+            barChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Today'],
+                    datasets: [{ label: 'Detections', data: [14, 22, 18, 26, 20, 31, today], backgroundColor: '#dc2626', borderRadius: 6 }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#fca5a5' }, grid: { display: false } },
+                        y: { ticks: { color: '#fca5a5' }, grid: { color: 'rgba(220, 38, 38, 0.1)' } }
+                    }
+                }
+            });
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

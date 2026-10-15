@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History - DeepGuard User</title>
+    <link rel="stylesheet" href="css/style.css?v=1785129584">
+    <style>
+        .user-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .user-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(20px);
+        }
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        
+        .main-content {
+            padding: 8rem 2rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <!-- User Navigation -->
+    <nav class="user-nav">
+        <div class="user-nav-left">
+            <div class="dropdown">
+                <div class="nav-brand" style="cursor: pointer;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    DeepGuard
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px; color:var(--text-secondary)"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="dropdown-menu">
+                    <a href="dashboard.html" class="dropdown-item">📊 Dashboard</a>
+                    <a href="detect.html" class="dropdown-item">🔍 New Detection</a>
+                    <a href="history.html" class="dropdown-item">📜 My History</a>
+                    <a href="chat.html" class="dropdown-item">🤖 AI Assistant</a>
+                    <a href="learn-more.html" class="dropdown-item">💡 Learn More</a>
+                    <a href="about.html" class="dropdown-item">ℹ️ About Us</a>
+                </div>
+            </div>
+        </div>
+        <div class="user-nav-right" style="display: flex; gap: 1rem; align-items: center;">
+            <span class="auth-name" style="font-weight: 500; color: var(--text-primary);">User</span>
+            <button onclick="logout()" class="btn btn-ghost" style="padding: 0.5rem 1rem;">Log out</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="animate" style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Detection History</h1>
+                <p class="text-secondary">A complete log of all products you have analyzed.</p>
+            </div>
+            <button onclick="exportPDF()" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                📄 Export PDF
+            </button>
+        </header>
+        
+        <div class="glass-card animate" data-delay="100" style="padding: 0; overflow: hidden;">
+            <div class="table-responsive">
+                <table id="historyTable" style="width: 100%; text-align: left; border-collapse: collapse;">
+                    <thead style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color);">
+                        <tr>
+                            <th style="padding: 1.5rem;">Date</th>
+                            <th style="padding: 1.5rem;">Product Category</th>
+                            <th style="padding: 1.5rem;">Confidence</th>
+                            <th style="padding: 1.5rem;">Result</th>
+                            <th style="padding: 1.5rem; text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <tr>
+                            <td colspan="5" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+                                Loading history...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <script>
+        const API_BASE = (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        ) ? 'http://127.0.0.1:8000/api' : 'https://YOUR_BACKEND_URL_HERE/api';
+
+        let detectionHistory = [];
+
+        async function fetchHistory() {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/detection/history`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`Server returned status ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (!data) return;
+                
+                detectionHistory = data;
+                displayHistory(data);
+            } catch (err) {
+                console.error('History error:', err);
+                document.getElementById('historyBody').innerHTML = 
+                    '<tr><td colspan="5" style="padding: 3rem; text-align: center; color: var(--danger);">Failed to load detection history. Please check server connection.</td></tr>';
+            }
+        }
+
+        function displayHistory(history) {
+            const tbody = document.getElementById('historyBody');
+
+            if (!history || history.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+                            No detection history found. Upload a product image on the <a href="detect.html" style="color: var(--primary); text-decoration: underline;">Detect page</a>.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            let html = '';
+            history.forEach(item => {
+                const dateStr = item.created_at ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent';
+                const isGen = (item.result || '').toLowerCase() === 'genuine' || (item.result || '').toLowerCase() === 'authentic';
+                const statusBadge = isGen 
+                    ? `<span style="padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3);">Genuine</span>`
+                    : `<span style="padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3);">Fake</span>`;
+                const confScore = typeof item.confidence === 'number' ? (item.confidence > 1 ? item.confidence.toFixed(1) : (item.confidence * 100).toFixed(1)) : item.confidence;
+
+                html += `
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 1.25rem;">${dateStr}</td>
+                        <td style="padding: 1.25rem; text-transform: capitalize;">${item.category || 'General'}</td>
+                        <td style="padding: 1.25rem; font-weight: 600;">${confScore}%</td>
+                        <td style="padding: 1.25rem;">${statusBadge}</td>
+                        <td style="padding: 1.25rem; text-align: right;">
+                            <a href="report-detail.html?id=${item.id}" class="btn btn-ghost" style="padding: 0.3rem 0.8rem; font-size: 0.85rem;">View Details</a>
+                        </td>
+                    </tr>`;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function exportPDF() {
+            if (!window.jspdf) {
+                alert("PDF export library loading, please try again in a second.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(20);
+            doc.setTextColor(108, 99, 255);
+            doc.text('DeepGuard - Detection Report', 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text('Generated: ' + new Date().toLocaleString(), 14, 28);
+            doc.text('User: ' + (localStorage.getItem('user_name') || 'User'), 14, 34);
+            
+            const tableData = detectionHistory.map(d => [
+                new Date(d.created_at).toLocaleDateString(),
+                d.category || 'General',
+                d.result,
+                d.confidence + '%',
+                d.explanation ? d.explanation.substring(0, 50) + '...' : 'N/A'
+            ]);
+            
+            doc.autoTable({
+                startY: 40,
+                head: [['Date', 'Category', 'Result', 'Confidence', 'AI Analysis']],
+                body: tableData,
+                headStyles: { fillColor: [108, 99, 255], textColor: 255 },
+                alternateRowStyles: { fillColor: [245, 245, 255] },
+                styles: { fontSize: 8 }
+            });
+            
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor(150);
+                doc.text(
+                    'DeepGuard - AI Fake Product Detection | MUET Jamshoro | Page ' + i,
+                    14,
+                    doc.internal.pageSize.height - 10
+                );
+            }
+            
+            doc.save('DeepGuard-Report-' + new Date().toISOString().split('T')[0] + '.pdf');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth('user');
+            fetchHistory();
+        });
+    </script>
+
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/animations.js?v=1785129584"></script>
+    <script src="js/auth.js?v=1785129584"></script>
+</body>
+</html>

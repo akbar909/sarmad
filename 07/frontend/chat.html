@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - DeepGuard User</title>
+    <link rel="stylesheet" href="css/style.css?v=1785129584">
+    <style>
+        .user-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+        .user-nav-left {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(20px);
+        }
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+        
+        .main-content {
+            padding: 8rem 2rem 4rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        .chat-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            max-height: 700px;
+        }
+        
+        .chat-header {
+            padding: 1.25rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chat-msg {
+            display: flex;
+            gap: 1rem;
+            max-width: 85%;
+        }
+        .chat-msg.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .chat-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        .chat-avatar.ai {
+            background: var(--primary);
+            color: #ffffff;
+        }
+        .chat-avatar.user {
+            background: var(--accent);
+            color: #ffffff;
+        }
+        .chat-bubble {
+            padding: 1rem 1.25rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        .chat-msg.ai .chat-bubble {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            border-top-left-radius: 4px;
+        }
+        .chat-msg.user .chat-bubble {
+            background: var(--primary);
+            color: #ffffff;
+            border-top-right-radius: 4px;
+        }
+
+        /* Typing indicator CSS */
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            padding: 12px 16px;
+        }
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            display: block;
+        }
+        .bubble-error {
+            background: rgba(239, 68, 68, 0.15) !important;
+            color: #ef4444 !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        }
+
+        /* Suggestions styling */
+        .suggestions {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-secondary);
+            flex-wrap: wrap;
+            border-top: 1px solid var(--border-color);
+        }
+        .suggestion-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.85rem;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .suggestion-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(124, 58, 237, 0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- User Navigation -->
+    <nav class="user-nav">
+        <div class="user-nav-left">
+            <div class="dropdown">
+                <div class="nav-brand" style="cursor: pointer;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    DeepGuard
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:4px; color:var(--text-secondary)"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="dropdown-menu">
+                    <a href="dashboard.html" class="dropdown-item">📊 Dashboard</a>
+                    <a href="detect.html" class="dropdown-item">🔍 New Detection</a>
+                    <a href="history.html" class="dropdown-item">📜 My History</a>
+                    <a href="chat.html" class="dropdown-item">🤖 AI Assistant</a>
+                    <a href="learn-more.html" class="dropdown-item">💡 Learn More</a>
+                    <a href="about.html" class="dropdown-item">ℹ️ About Us</a>
+                </div>
+            </div>
+        </div>
+        <div class="user-nav-right" style="display: flex; gap: 1rem; align-items: center;">
+            <span class="auth-name" style="font-weight: 500; color: var(--text-primary);">User</span>
+            <button onclick="logout()" class="btn btn-ghost" style="padding: 0.5rem 1rem;">Log out</button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        
+        <header class="animate" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h1 style="font-size: 2.2rem; margin-bottom: 0.25rem;">DeepGuard AI Assistant</h1>
+                <p class="text-secondary">Ask questions about product authenticity, verification tips, and counterfeit detection.</p>
+            </div>
+            <span class="badge" style="background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3); margin-bottom: 0;">
+                🟢 ONLINE
+            </span>
+        </header>
+        
+        <div class="chat-container animate" data-delay="100">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="chat-avatar ai" style="width: 32px; height: 32px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <span style="font-weight: 600; color: var(--text-primary);">DeepGuard AI Support</span>
+                </div>
+                <span style="font-size: 0.85rem; color: var(--text-secondary);">Real-time Assistant</span>
+            </div>
+
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <!-- Quick Suggestion Buttons -->
+            <div class="suggestions">
+                <button class="suggestion-btn" onclick="sendSuggestion('How to identify fake Nike shoes?')">👟 Fake Nike shoes?</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('How to verify iPhone authenticity?')">📱 Verify iPhone?</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Signs of fake medicine?')">💊 Fake medicine?</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('How to detect fake perfume?')">✨ Fake perfume?</button>
+            </div>
+            
+            <div style="padding: 1.25rem 1.5rem; background: var(--bg-secondary); border-top: 1px solid var(--border-color); display: flex; gap: 1rem;">
+                <input type="text" id="messageInput" class="form-input" placeholder="Type your message here..." style="margin-bottom: 0; flex: 1;">
+                <button class="btn btn-primary" id="sendBtn" style="padding: 0.75rem 1.75rem;">Send</button>
+            </div>
+        </div>
+
+        <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        const API_BASE = (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1'
+        ) ? 'http://127.0.0.1:8000' : 'https://YOUR_BACKEND_URL_HERE';
+
+        let chatHistory = [];
+        const userName = localStorage.getItem('userName') || localStorage.getItem('user_name') || 'User';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth('user');
+
+            // Welcome message
+            addMessage(
+                `Hello ${userName}! 👋 I am DeepGuard AI Assistant.\n\n` +
+                `I can help you with:\n` +
+                `• Identifying fake products\n` +
+                `• Authentication tips for Footwear, Electronics, Medicine & Cosmetics\n` +
+                `• Understanding your detection results\n\n` +
+                `How can I help you today?`,
+                'ai'
+            );
+
+            // Auto-send context from URL if present (e.g. from detect or report detail page)
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportContext = urlParams.get('context');
+            if (reportContext) {
+                setTimeout(() => {
+                    const input = document.getElementById('messageInput');
+                    input.value = reportContext;
+                    sendMessage();
+                }, 500);
+            }
+        });
+
+        // Send message function
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Clear input
+            input.value = '';
+            
+            // Add user message to UI
+            addMessage(message, 'user');
+            
+            // Add to history
+            chatHistory.push({
+                role: 'user',
+                content: message
+            });
+            
+            // Show typing indicator
+            showTyping();
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/chat/message`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        history: chatHistory
+                    })
+                });
+                
+                // Hide typing
+                hideTyping();
+                
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    console.error('Chat API Error:', err);
+                    addMessage(
+                        'Sorry, I encountered an error. Please try again.',
+                        'ai',
+                        true
+                    );
+                    return;
+                }
+                
+                const data = await response.json();
+                const aiResponse = data.response || data.reply || 'Analysis complete.';
+                
+                // Add AI response to UI
+                addMessage(aiResponse, 'ai');
+                
+                // Add to history
+                chatHistory.push({
+                    role: 'assistant',
+                    content: aiResponse
+                });
+                
+            } catch(err) {
+                hideTyping();
+                addMessage(
+                    'Connection error. Please check if server is running.',
+                    'ai',
+                    true
+                );
+                console.error('Chat error:', err);
+            }
+        }
+
+        // Add message to chat UI
+        function addMessage(text, sender, isError = false) {
+            const container = document.getElementById('chatMessages');
+            
+            const div = document.createElement('div');
+            div.className = `chat-msg ${sender}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = `chat-avatar ${sender}`;
+            if (sender === 'user') {
+                const userInitials = userName.charAt(0).toUpperCase();
+                avatar.textContent = userInitials || 'U';
+            } else {
+                avatar.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>';
+            }
+
+            const bubbleWrapper = document.createElement('div');
+
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble`;
+            if (isError) bubble.classList.add('bubble-error');
+            
+            // Format text with line breaks
+            bubble.innerHTML = text.replace(/\n/g, '<br>');
+            
+            const time = document.createElement('span');
+            time.className = 'message-time';
+            time.style.textAlign = sender === 'user' ? 'right' : 'left';
+            time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            bubbleWrapper.appendChild(bubble);
+            bubbleWrapper.appendChild(time);
+
+            div.appendChild(avatar);
+            div.appendChild(bubbleWrapper);
+            container.appendChild(div);
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTyping() {
+            const container = document.getElementById('chatMessages');
+            const typing = document.createElement('div');
+            typing.id = 'typingIndicator';
+            typing.className = 'chat-msg ai';
+            typing.innerHTML = `
+                <div class="chat-avatar ai">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <div class="chat-bubble typing">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            container.appendChild(typing);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        // Send on Enter key
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Send button click
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+
+        // Quick suggestion buttons
+        function sendSuggestion(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+        </script>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/animations.js?v=1785129584"></script>
+    <script src="js/auth.js?v=1785129584"></script>
+</body>
+</html>
